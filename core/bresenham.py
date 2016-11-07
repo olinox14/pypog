@@ -5,11 +5,32 @@ Created on 7 nov. 2016
     Compute lines between coordinates in 2d or 3d, on hexagonal or square grid
 @author: olinox
 '''
-
 from math import sqrt
-
 from core.constants import SQUAREGRID, HEXGRID
 
+def line2d(geometry, x1, y1, x2, y2):
+    """returns a line from x1,y1 to x2,y2
+    grid could be one of the GRIDTYPES values"""
+    if not all(isinstance(c, int) for c in [x1, y1, x2, y2]):
+        raise TypeError("x1, y1, x2, y2 have to be integers")
+    if geometry == SQUAREGRID:
+        return _brH(x1, y1, x2, y2)
+    elif geometry == HEXGRID: 
+        return _brC(x1, y1, x2, y2)
+    else:
+        raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")
+
+def line3d(geometry, x1, y1, z1, x2, y2, z2):
+    """returns a line from x1,y1,z1 to x2,y2,z2
+    grid could be one of the GRIDTYPES values"""
+    if not all(isinstance(c, int) for c in [x1, y1, z1, x2, y2, z2]):
+        raise TypeError("x1, y1, z1, x2, y2, z2 have to be integers")
+    hoLine = line2d(geometry, x1, y1, x2, y2)
+    if z1 == z2:
+        return [(x, y, z1) for x, y in hoLine]
+    else:
+        ligneZ = _brC(0, z1, (len(hoLine)-1), z2)
+        return [(hoLine[d][0], hoLine[d][1], z) for d, z in ligneZ]
 
 def hex_2d_line(x1, y1, x2, y2):
     """returns a line from x1,y1 to x2,y2 on an hexagonal grid
@@ -25,7 +46,6 @@ def hex_3d_line(x1, y1, z1, x2, y2, z2):
     line is a list of coordinates"""
     if not all(isinstance(c, int) for c in [x1, y1, z1, x2, y2, z2]):
         raise TypeError("x1, y1, z1, x2, y2, z2 have to be integers")
-    
     hoLine = hex_2d_line(x1, y1, x2, y2)
     if z1 == z2:
         return [(x, y, z1) for x, y in hoLine]
@@ -59,29 +79,7 @@ def squ_3d_line(x1, y1, z1, x2, y2, z2):
         zLine = _brC(0, z1, (len(hoLine)-1), z2)
         return [(hoLine[d][0], hoLine[d][1], z) for d, z in zLine]
 
-def line2d(grid, x1, y1, x2, y2):
-    """returns a line from x1,y1 to x2,y2
-    grid could be one of the GRIDTYPES values"""
-    if not all(isinstance(c, int) for c in [x1, y1, x2, y2]):
-        raise TypeError("x1, y1, x2, y2 have to be integers")
-    if grid == SQUAREGRID:
-        return _brH(x1, y1, x2, y2)
-    elif grid == HEXGRID: 
-        return _brC(x1, y1, x2, y2)
-    else:
-        raise ValueError("grid has to be a value from GRIDTYPES")
 
-def ligne3d(grid, x1, y1, z1, x2, y2, z2):
-    """returns a line from x1,y1,z1 to x2,y2,z2
-    grid could be one of the GRIDTYPES values"""
-    if not all(isinstance(c, int) for c in [x1, y1, z1, x2, y2, z2]):
-        raise TypeError("x1, y1, z1, x2, y2, z2 have to be integers")
-    hoLine = line2d(grid, x1, y1, x2, y2)
-    if z1 == z2:
-        return [(x, y, z1) for x, y in hoLine]
-    else:
-        ligneZ = _brC(0, z1, (len(hoLine)-1), z2)
-        return [(hoLine[d][0], hoLine[d][1], z) for d, z in ligneZ]
     
 def _brC(x1, y1, x2, y2):
     """Line Bresenham algorithm for square grid"""
@@ -114,8 +112,6 @@ def _brC(x1, y1, x2, y2):
     if reversed_sym: 
         result.reverse()
     return result
-    
-    
     
 def _brH(x1, y1, x2, y2):
     """Line Bresenham algorithm for hexagonal grid"""
