@@ -6,16 +6,18 @@ Created on 7 nov. 2016
 @author: olinox
 '''
 from math import sqrt
-from core.constants import SQUAREGRID, HEXGRID
+
+from core import constants
+
 
 def line2d(geometry, x1, y1, x2, y2):
     """returns a line from x1,y1 to x2,y2
     grid could be one of the GRIDTYPES values"""
     if not all(isinstance(c, int) for c in [x1, y1, x2, y2]):
         raise TypeError("x1, y1, x2, y2 have to be integers")
-    if geometry == SQUAREGRID:
+    if geometry == constants.SQUAREGRID:
         return _brH(x1, y1, x2, y2)
-    elif geometry == HEXGRID: 
+    elif geometry == constants.HEXGRID: 
         return _brC(x1, y1, x2, y2)
     else:
         raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")
@@ -66,7 +68,6 @@ def squ_2d_line(x1, y1, x2, y2):
         return [(x1, y1)]
     return _brC(x1, y1, x2, y2)
     
-
 def squ_3d_line(x1, y1, z1, x2, y2, z2):
     """returns a line from x1,y1,z1 to x2,y2,z2 on an square grid
     line is a list of coordinates"""
@@ -79,8 +80,6 @@ def squ_3d_line(x1, y1, z1, x2, y2, z2):
         zLine = _brC(0, z1, (len(hoLine)-1), z2)
         return [(hoLine[d][0], hoLine[d][1], z) for d, z in zLine]
 
-
-    
 def _brC(x1, y1, x2, y2):
     """Line Bresenham algorithm for square grid"""
     result = []

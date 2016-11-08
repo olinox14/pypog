@@ -3,8 +3,9 @@ Created on 7 nov. 2016
     Game Grid
 @author: olinox
 '''
-from core import bresenham
+from core import bresenham, triangle, rectangle
 from core.constants import GRID_GEOMETRIES
+from core.triangle import ANGLES
 
 
 class Grid(object):
@@ -48,22 +49,39 @@ class Grid(object):
     def cases_number(self):
         return self.height * self.width
     
-    def line(self, *args):
-        if len(args) == 4:
-            x1, y1, x2, y2 = args
-            return bresenham.line2d(self.geometry, x1, y1, x2, y2)
-        if len(args) == 6:
-            x1, y1, z1, x2, y2, z2 = args
-            return bresenham.line3d(self.geometry, x1, y1, z1, x2, y2, z2)
+    def in_grid(self, x, y):
+        """return True if the coordinates are in the grid"""
+        return (x > 0 and x <= self._width and y > 0 and y <= self._height)
     
+    def line(self, x1, y1, x2, y2):
+        return bresenham.line2d(self.geometry, x1, y1, x2, y2)
     
+    def line3d(self, x1, y1, z1, x2, y2, z2):
+        return bresenham.line3d(self.geometry, x1, y1, z1, x2, y2, z2)
     
+    def triangle(self, xa, ya, xh, yh, iAngle):
+        return triangle.triangle(self.geometry, xa, ya, xh, yh, iAngle)
+    
+    def triangle3d(self, xa, ya, za, xh, yh, zh, iAngle):
+        return triangle.triangle3d(self.geometry, xa, ya, za, xh, yh, zh, iAngle)
+
+    def rect(self, x1, y1, x2, y2):
+        return rectangle.rect(x1, y1, x2, y2)
+    
+    def hollow_rect(self, x1, y1, x2, y2):
+        return rectangle.hollow_rect(x1, y1, x2, y2)
+
+
     
 if __name__ == '__main__':
     gr = Grid(5, 100, 100)
     print(gr.cases_number())
+    
     print(gr.line(1,1,5,10))
-    print(gr.line(1,1,1,5,10,10))
+    print(gr.line3d(1,1,1,5,10,10))
+    
+    print(gr.triangle(1,1,5,10,ANGLES[1]))
+    print(gr.triangle3d(1,1,1,5,10,10, ANGLES[1]))
     
     
     
