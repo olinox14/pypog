@@ -3,9 +3,10 @@ Created on 7 nov. 2016
     Game Grid
 @author: olinox
 '''
-from core import bresenham, triangle, rectangle
+from core import bresenham, triangle, rectangle, pathfinder
 from core.constants import GRID_GEOMETRIES
 from core.triangle import ANGLES
+from core.Cell import Cell
 
 
 class Grid(object):
@@ -13,6 +14,7 @@ class Grid(object):
         self._geometry = geometry
         self._width = width
         self._height = height
+        self._cells = {}
         
     # properties
     @property
@@ -45,6 +47,16 @@ class Grid(object):
             raise ValueError("'width' has to be a strictly positive integer")
         self._height = height    
     
+    def cell(self, coord):
+        # temporary
+        try:
+            return self._cells[coord]
+        except KeyError:
+            x, y = coord
+            cell = Cell(self._geometry, x, y)
+            self._cells[coord] = cell
+            return cell
+    
     # methods
     def cases_number(self):
         return self.height * self.width
@@ -71,7 +83,11 @@ class Grid(object):
     def hollow_rect(self, x1, y1, x2, y2):
         return rectangle.hollow_rect(x1, y1, x2, y2)
 
-
+    def path(self, x1, y1, x2, y2):
+        return pathfinder.path( self, (x1, y1), (x2,y2) )
+    
+    
+    
     
 if __name__ == '__main__':
     gr = Grid(5, 100, 100)
@@ -82,6 +98,8 @@ if __name__ == '__main__':
     
     print(gr.triangle(1,1,5,10,ANGLES[1]))
     print(gr.triangle3d(1,1,1,5,10,10, ANGLES[1]))
+    
+    print(gr.path(1,1,5,10))
     
     
     

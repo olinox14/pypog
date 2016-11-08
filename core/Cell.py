@@ -14,6 +14,7 @@ class Cell(object):
         self._x = x
         self._y = y
         self._z = z
+        self._neighbours = ()
         self.__update_neighbours()
 
     @property
@@ -38,6 +39,10 @@ class Cell(object):
     
     def __repr__(self):
         return "Cell {}".format(self.coord)
+    
+    @property
+    def neighbours(self):
+        return self._neighbours
     
     def __update_neighbours(self):
         """update the tuple of neighbours cells"""
