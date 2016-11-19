@@ -3,10 +3,10 @@ Created on 7 nov. 2016
     Game Grid
 @author: olinox
 '''
-from core import bresenham, triangle, rectangle, pathfinder
-from core.constants import GRID_GEOMETRIES
-from core.triangle import ANGLES
 from core.Cell import Cell
+from core.constants import GRID_GEOMETRIES
+from core.geometry import triangle, rectangle, line, zone
+from core.pathfinder import pathfinder
 
 
 class Grid(object):
@@ -66,10 +66,10 @@ class Grid(object):
         return (x > 0 and x <= self._width and y > 0 and y <= self._height)
     
     def line(self, x1, y1, x2, y2):
-        return bresenham.line2d(self.geometry, x1, y1, x2, y2)
+        return line.line2d(self.geometry, x1, y1, x2, y2)
     
     def line3d(self, x1, y1, z1, x2, y2, z2):
-        return bresenham.line3d(self.geometry, x1, y1, z1, x2, y2, z2)
+        return line.line3d(self.geometry, x1, y1, z1, x2, y2, z2)
     
     def triangle(self, xa, ya, xh, yh, iAngle):
         return triangle.triangle(self.geometry, xa, ya, xh, yh, iAngle)
@@ -86,7 +86,20 @@ class Grid(object):
     def path(self, x1, y1, x2, y2):
         return pathfinder.path( self, (x1, y1), (x2,y2) )
     
+    def zone(self, x, y):
+        return zone.zone(self.geometry, x, y)
     
+class HexGrid(Grid):
+    def __init__(self, width, height):
+        Grid.__init__(5, width, height)
+
+class SquareGrid(Grid):
+    def __init__(self, width, height):
+        Grid.__init__(4, width, height)
+
+
+
+
     
     
 if __name__ == '__main__':
@@ -96,8 +109,8 @@ if __name__ == '__main__':
     print(gr.line(1,1,5,10))
     print(gr.line3d(1,1,1,5,10,10))
     
-    print(gr.triangle(1,1,5,10,ANGLES[1]))
-    print(gr.triangle3d(1,1,1,5,10,10, ANGLES[1]))
+    print(gr.triangle(1,1,5,10,triangle.ANGLES[1]))
+    print(gr.triangle3d(1,1,1,5,10,10, triangle.ANGLES[1]))
     
     print(gr.path(1,1,5,10))
     

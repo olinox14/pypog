@@ -6,8 +6,9 @@ Created on 8 nov. 2016
 
 from math import sqrt
 
-from core import bresenham, constants
-from core.cube_coords import cv_off_cube, cube_round, cv_cube_off
+from core import constants
+from core.geometry import line
+from core.geometry.cube_coords import cv_off_cube, cube_round, cv_cube_off
 
 
 ANGLES = [1, 2, 3]
@@ -61,7 +62,7 @@ def triangle_sq(xa, ya, xh, yh, iAngle):
     
     # base (lower slope)
     x1, y1, x2, y2 = min(lines, key=lambda x: (abs ( (x[3] - x[1]) / (x[2] - x[0]) ) if x[2] != x[0] else 10**10))
-    base = bresenham.squ_2d_line(x1, y1, x2, y2)
+    base = line.squ_2d_line(x1, y1, x2, y2)
     y_base = y1
     lines.remove( (x1, y1, x2, y2) )
     
@@ -71,7 +72,7 @@ def triangle_sq(xa, ya, xh, yh, iAngle):
     for x1, y1, x2, y2 in lines:
         if y_top == None: 
             y_top = y2
-        hat.extend( bresenham.squ_2d_line(x1, y1, x2, y2) )
+        hat.extend( line.squ_2d_line(x1, y1, x2, y2) )
     
     # sense (1 if top is under base, -1 if not)
     sense = 1 if y_top > y_base else -1
@@ -102,7 +103,7 @@ def triangle_sq_3d(xa, ya, za, xh, yh, zh, iAngle):
 
     length = max( abs(xh - xa), abs(yh - ya) )
 
-    vertical_line = bresenham.squ_2d_line(0, za, length, zh)
+    vertical_line = line.squ_2d_line(0, za, length, zh)
     
     #on cree un dictionnaire ou x est la cle, et ou la valeur est une liste de z
     vertical_line_dict = {d:[] for d, z in vertical_line}
@@ -163,7 +164,7 @@ def triangle_hex(xa, ya, xh, yh, iAngle):
     
     # base (lower slope)
     x1, y1, x2, y2 = min(segments, key=lambda x: (abs ( (x[3] - x[1]) / (x[2] - x[0]) ) if x[2] != x[0] else 10**10))
-    base = bresenham.hex_2d_line(x1, y1, x2, y2)
+    base = line.hex_2d_line(x1, y1, x2, y2)
     y_base = y1
     segments.remove( (x1, y1, x2, y2) )
     
@@ -173,7 +174,7 @@ def triangle_hex(xa, ya, xh, yh, iAngle):
     for x1, y1, x2, y2 in segments:
         if y_sommet == None: 
             y_sommet = y2
-        chapeau.extend( bresenham.hex_2d_line(x1, y1, x2, y2) )
+        chapeau.extend( line.hex_2d_line(x1, y1, x2, y2) )
     
     # sense (1 if top is under base, -1 if not)
     sens = 1 if y_sommet > y_base else -1
@@ -204,7 +205,7 @@ def triangle_hex_3d(xa, ya, za, xh, yh, zh, iAngle):
     
     length = max( abs(xuh - xua), abs(yuh - yua), abs(zuh - zua) )
 
-    vertical_line = bresenham.squ_2d_line(0, za, length, zh)
+    vertical_line = line.squ_2d_line(0, za, length, zh)
     
     #on cree un dictionnaire ou x est la cle, et ou la valeur est une liste de z
     vertical_line_dict = {d:[] for d, z in vertical_line}

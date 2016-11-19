@@ -3,7 +3,7 @@ Created on 17 déc. 2015
    Implement the A* algorithm
 @author: olivier.massot
 '''
-from core import cube_coords, Cell
+from core.geometry import cube_coords
 
 
 def distance(coord1, coord2):
