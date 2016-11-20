@@ -7,7 +7,6 @@ Created on 8 nov. 2016
 from math import sqrt
 
 from core import constants
-from core.geometry import line
 from core.geometry.cube_coords import cv_off_cube, cube_round, cv_cube_off
 
 

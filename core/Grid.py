@@ -5,7 +5,7 @@ Created on 7 nov. 2016
 '''
 from core.Cell import Cell
 from core.constants import GRID_GEOMETRIES
-from core import geometry
+from core.geometry import gline, gzone, gtriangle, grectangle
 from core.pathfinder import pathfinder
 
 
@@ -52,9 +52,6 @@ class Grid(object):
             raise ValueError("'width' has to be a strictly positive integer")
         self._height = height    
     
-    
-    
-    
     def cell(self, coord):
         # temporary
         try:
@@ -74,25 +71,25 @@ class Grid(object):
         return (x > 0 and x <= self._width and y > 0 and y <= self._height)
     
     def line(self, x1, y1, x2, y2):
-        return geometry.gline.line2d(self.geometry, x1, y1, x2, y2)
+        return gline.line2d(self.geometry, x1, y1, x2, y2)
     
     def line3d(self, x1, y1, z1, x2, y2, z2):
-        return geometry.gline.line3d(self.geometry, x1, y1, z1, x2, y2, z2)
+        return gline.line3d(self.geometry, x1, y1, z1, x2, y2, z2)
     
-    def zone(self, x, y):
-        return geometry.gzone.zone(self.geometry, x, y)
+    def zone(self, x, y, radius):
+        return gzone.zone(self.geometry, x, y, radius)
     
     def triangle(self, xa, ya, xh, yh, iAngle):
-        return geometry.gtriangle.triangle(self.geometry, xa, ya, xh, yh, iAngle)
+        return gtriangle.triangle(self.geometry, xa, ya, xh, yh, iAngle)
     
     def triangle3d(self, xa, ya, za, xh, yh, zh, iAngle):
-        return geometry.gtriangle.triangle3d(self.geometry, xa, ya, za, xh, yh, zh, iAngle)
+        return gtriangle.triangle3d(self.geometry, xa, ya, za, xh, yh, zh, iAngle)
 
     def rect(self, x1, y1, x2, y2):
-        return geometry.grectangle.rect(x1, y1, x2, y2)
+        return grectangle.rect(x1, y1, x2, y2)
     
     def hollow_rect(self, x1, y1, x2, y2):
-        return geometry.grectangle.hollow_rect(x1, y1, x2, y2)
+        return grectangle.hollow_rect(x1, y1, x2, y2)
 
     def path(self, x1, y1, x2, y2):
         return pathfinder.path( self, (x1, y1), (x2,y2) )
