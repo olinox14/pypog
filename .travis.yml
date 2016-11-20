@@ -6,9 +6,7 @@ python:
 install:
   - pip install nose2
   - pip install coveralls
-  - pip install pylint
 script: 
   - nose2 --with-coverage
-  - pylint --errors-only
 after_success:
   coveralls
