@@ -47,12 +47,12 @@ class Cell(object):
     def __update_neighbours(self):
         """update the tuple of neighbours cells"""
         x, y = self._x, self._y
-        if self._geometry == constants.HEXGRID:
+        if self._geometry == constants.HEX:
             if 1 == (x % 2):
                 self._neighbours = ( (x, y-1), (x+1, y), (x+1, y+1), (x,  y+1), (x-1, y+1), (x-1, y) )
             else:
                 self._neighbours = ( (x, y-1), (x+1, y-1), (x+1, y), (x,  y+1), (x-1, y), (x-1, y-1) )
-        elif self._geometry == constants.SQUAREGRID:
+        elif self._geometry == constants.SQUARE:
             self._neighbours = ( (x-1, y-1), (x, y-1), (x+1, y-1), \
                                 (x-1, y)  , (x, y-1), (x+1, y)  , \
                                 (x-1, y+1), (x, y+1),(x+1, y+1) )

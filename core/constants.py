@@ -6,5 +6,5 @@ Created on 7 nov. 2016
 
 # geometry
 GRID_GEOMETRIES = [4, 5]
-SQUAREGRID = 4
-HEXGRID = 5
+SQUARE = 4
+HEX = 5

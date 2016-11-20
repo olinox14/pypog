@@ -14,17 +14,17 @@ from core.geometry.cube_coords import cv_off_cube, cube_round, cv_cube_off
 ANGLES = [1, 2, 3]
 
 def triangle(geometry, xa, ya, xh, yh, iAngle):
-    if geometry == constants.SQUAREGRID:
+    if geometry == constants.SQUARE:
         return triangle_sq(xa, ya, xh, yh, iAngle)
-    elif geometry == constants.HEXGRID: 
+    elif geometry == constants.HEX: 
         return triangle_hex(xa, ya, xh, yh, iAngle)
     else:
         raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")
 
 def triangle3d(geometry, xa, ya, za, xh, yh, zh, iAngle):
-    if geometry == constants.SQUAREGRID:
+    if geometry == constants.SQUARE:
         return triangle_sq_3d(xa, ya, za, xh, yh, zh, iAngle)
-    elif geometry == constants.HEXGRID: 
+    elif geometry == constants.HEX: 
         return triangle_hex_3d(xa, ya, za, xh, yh, zh, iAngle)
     else:
         raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")

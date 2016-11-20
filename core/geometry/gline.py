@@ -15,10 +15,12 @@ def line2d(geometry, x1, y1, x2, y2):
     grid could be one of the GRIDTYPES values"""
     if not all(isinstance(c, int) for c in [x1, y1, x2, y2]):
         raise TypeError("x1, y1, x2, y2 have to be integers")
-    if geometry == constants.SQUAREGRID:
-        return _brH(x1, y1, x2, y2)
-    elif geometry == constants.HEXGRID: 
-        return _brC(x1, y1, x2, y2)
+    if (x1, y1) == (x2, y2):
+        return [(x1, y1)]
+    if geometry == constants.HEX:
+        return hex_2d_line(x1, y1, x2, y2)
+    elif geometry == constants.SQUARE: 
+        return squ_2d_line(x1, y1, x2, y2)
     else:
         raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")
 
@@ -37,8 +39,6 @@ def line3d(geometry, x1, y1, z1, x2, y2, z2):
 def hex_2d_line(x1, y1, x2, y2):
     """returns a line from x1,y1 to x2,y2 on an hexagonal grid
     line is a list of coordinates"""
-    if not all(isinstance(c, int) for c in [x1, y1, x2, y2]):
-        raise TypeError("x1, y1, x2, y2 have to be integers")
     if (x1, y1) == (x2, y2):
         return [(x1, y1)]
     return _brH(x1, y1, x2, y2)
@@ -46,8 +46,6 @@ def hex_2d_line(x1, y1, x2, y2):
 def hex_3d_line(x1, y1, z1, x2, y2, z2):
     """returns a line from x1,y1,z1 to x2,y2,z2 on an hexagonal grid
     line is a list of coordinates"""
-    if not all(isinstance(c, int) for c in [x1, y1, z1, x2, y2, z2]):
-        raise TypeError("x1, y1, z1, x2, y2, z2 have to be integers")
     hoLine = hex_2d_line(x1, y1, x2, y2)
     if z1 == z2:
         return [(x, y, z1) for x, y in hoLine]
@@ -62,8 +60,6 @@ def squ_2d_line(x1, y1, x2, y2):
     """returns a line from x1,y1 to x2,y2 on an square grid
     line is a list of coordinates
     """
-    if not all(isinstance(c, int) for c in [x1, y1, x2, y2]):
-        raise TypeError("x1, y1, x2, y2 have to be integers")
     if (x1, y1) == (x2, y2):
         return [(x1, y1)]
     return _brC(x1, y1, x2, y2)
@@ -71,8 +67,6 @@ def squ_2d_line(x1, y1, x2, y2):
 def squ_3d_line(x1, y1, z1, x2, y2, z2):
     """returns a line from x1,y1,z1 to x2,y2,z2 on an square grid
     line is a list of coordinates"""
-    if not all(isinstance(c, int) for c in [x1, y1, z1, x2, y2, z2]):
-        raise TypeError("x1, y1, z1, x2, y2, z2 have to be integers")
     hoLine = squ_2d_line(x1, y1, x2, y2)
     if z1 == z2:
         return [(x, y, z1) for x, y in hoLine]
