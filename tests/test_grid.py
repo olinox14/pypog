@@ -20,16 +20,16 @@ class Test(unittest.TestCase):
         _ = Grid( geometry.HEX, 1, 1 )
         _ = HexGrid( 1, 1 )
 
-    def test_geometry(self):
+    def test_grid_shape(self):
         grid = Grid( geometry.SQUARE, 1, 1 )
-        self.assertEqual( grid.geometry, geometry.SQUARE )
+        self.assertEqual( grid.grid_shape, geometry.SQUARE )
         
-        grid.geometry = geometry.HEX
-        self.assertEqual( grid.geometry, geometry.HEX )
+        grid.grid_shape = geometry.HEX
+        self.assertEqual( grid.grid_shape, geometry.HEX )
 
-        def _set_invalid_geometry():
-            grid.geometry = -1
-        self.assertRaises( ValueError, _set_invalid_geometry )
+        def _set_invalid_grid_shape():
+            grid.grid_shape = -1
+        self.assertRaises( ValueError, _set_invalid_grid_shape )
 
     def test_dimensions(self):
         
