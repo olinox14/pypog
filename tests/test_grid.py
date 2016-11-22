@@ -94,7 +94,7 @@ class Test(unittest.TestCase):
         
         grid = HexGrid(10,10)
         zone = grid.zone( 0, 0, 0 )
-        self.assertEqual(zone, [(0,0)])
+        self.assertCountEqual(zone, [(0,0)])
 
 
 if __name__ == "__main__":
