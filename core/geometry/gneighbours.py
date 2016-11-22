@@ -3,11 +3,13 @@ Created on 19 nov. 2016
 
 @author: olinox
 '''
+from core import geometry
 
-def neighbours_of(geometry, x, y):
-    if geometry == 4:
+
+def neighbours_of(grid_shape, x, y):
+    if grid_shape == geometry.SQUARE:
         return squ_neighbours_of(x, y)
-    elif geometry == 5: 
+    elif grid_shape == geometry.HEX: 
         return hex_neighbours_of(x, y)
     else:
         raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")

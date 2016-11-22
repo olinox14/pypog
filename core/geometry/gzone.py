@@ -6,7 +6,7 @@ Created on 19 nov. 2016
 from core.geometry import gneighbours
 
 
-def zone(geometry, x0, y0, radius):
+def zone(grid_shape, x0, y0, radius):
     """ returns the list of the coordinates of the cells in the zone around (x0, y0)
     """
     if not all(isinstance(c, int) for c in [x0, y0, radius]):
@@ -18,6 +18,6 @@ def zone(geometry, x0, y0, radius):
     for _ in range(0, radius):
         current = buffer
         for x, y in current:
-            buffer |= frozenset( gneighbours.neighbours_of( geometry, x, y ) )
+            buffer |= frozenset( gneighbours.neighbours_of( grid_shape, x, y ) )
 
     return list(buffer)

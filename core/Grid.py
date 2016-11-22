@@ -3,16 +3,16 @@ Created on 7 nov. 2016
     Game Grid
 @author: olinox
 '''
+from core import geometry
 from core.Cell import Cell
-from core.constants import GRID_GEOMETRIES
 from core.geometry import gline, gzone, gtriangle, grectangle
 from core.pathfinder import pathfinder
 
 
 class Grid(object):
-    def __init__(self, geometry, width, height):
-        self._geometry = None
-        self.geometry = geometry
+    def __init__(self, grid_shape, width, height):
+        self._grid_shape = None
+        self.grid_shape = grid_shape
         
         self._width = 0
         self.width = width
@@ -23,14 +23,14 @@ class Grid(object):
         
     # properties
     @property
-    def geometry(self):
-        return self._geometry
+    def grid_shape(self):
+        return self._grid_shape
     
-    @geometry.setter
-    def geometry(self, geometry):
-        if not geometry in GRID_GEOMETRIES:
-            raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")
-        self._geometry = geometry
+    @grid_shape.setter
+    def grid_shape(self, grid_shape):
+        if not grid_shape in geometry.GRID_GEOMETRIES:
+            raise ValueError("'grid_shape' has to be a value from GRID_GEOMETRIES")
+        self._grid_shape = grid_shape
         
     @property
     def width(self):
@@ -71,19 +71,19 @@ class Grid(object):
         return (x > 0 and x <= self._width and y > 0 and y <= self._height)
     
     def line(self, x1, y1, x2, y2):
-        return gline.line2d(self.geometry, x1, y1, x2, y2)
+        return gline.line2d(self.grid_shape, x1, y1, x2, y2)
     
     def line3d(self, x1, y1, z1, x2, y2, z2):
-        return gline.line3d(self.geometry, x1, y1, z1, x2, y2, z2)
+        return gline.line3d(self.grid_shape, x1, y1, z1, x2, y2, z2)
     
     def zone(self, x, y, radius):
-        return gzone.zone(self.geometry, x, y, radius)
+        return gzone.zone(self.grid_shape, x, y, radius)
     
     def triangle(self, xa, ya, xh, yh, iAngle):
-        return gtriangle.triangle(self.geometry, xa, ya, xh, yh, iAngle)
+        return gtriangle.triangle(self.grid_shape, xa, ya, xh, yh, iAngle)
     
     def triangle3d(self, xa, ya, za, xh, yh, zh, iAngle):
-        return gtriangle.triangle3d(self.geometry, xa, ya, za, xh, yh, zh, iAngle)
+        return gtriangle.triangle3d(self.grid_shape, xa, ya, za, xh, yh, zh, iAngle)
 
     def rect(self, x1, y1, x2, y2):
         return grectangle.rect(x1, y1, x2, y2)

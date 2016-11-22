@@ -5,7 +5,7 @@ Created on 20 nov. 2016
 '''
 import unittest
 
-from core import constants
+from core import geometry
 from core.geometry import gzone
 
 
@@ -16,19 +16,19 @@ class Test(unittest.TestCase):
 
     def test_hex_zone(self):
         """ test the zone algo for hexagonal grid """
-        geometry = constants.HEX
-        self.assertCountEqual( gzone.zone( geometry, 3, 3, 0 ), [(3,3)])
-        self.assertCountEqual( gzone.zone( geometry, 3, 3, 1 ), [(3, 2), (2, 3), (3, 3), (4, 3), (4, 4), (3, 4), (2, 4)])
-        self.assertCountEqual( gzone.zone( geometry, 3, 3, 2 ), [(3, 2), (1, 3), (5, 4), (4, 5), (1, 4), (2, 3), (4, 2), \
+        grid_shape = geometry.HEX
+        self.assertCountEqual( gzone.zone( grid_shape, 3, 3, 0 ), [(3,3)])
+        self.assertCountEqual( gzone.zone( grid_shape, 3, 3, 1 ), [(3, 2), (2, 3), (3, 3), (4, 3), (4, 4), (3, 4), (2, 4)])
+        self.assertCountEqual( gzone.zone( grid_shape, 3, 3, 2 ), [(3, 2), (1, 3), (5, 4), (4, 5), (1, 4), (2, 3), (4, 2), \
                                                             (2, 5), (5, 3), (1, 2), (3, 5), (3, 3), (4, 4), (3, 1), \
                                                             (4, 3), (2, 2), (3, 4), (2, 4), (5, 2)] )
 
     def test_squ_zone(self):
         """ test the zone algo for square grid """
-        geometry = constants.SQUARE
-        self.assertCountEqual( gzone.zone( geometry, 3, 3, 0 ), [(3,3)])
-        self.assertCountEqual( gzone.zone( geometry, 3, 3, 1 ), [(3, 2), (3, 3), (4, 4), (2, 3), (4, 3), (2, 2), (4, 2), (3, 4), (2, 4)])
-        self.assertCountEqual( gzone.zone( geometry, 3, 3, 2 ), [(2, 4), (3, 2), (5, 4), (1, 3), (4, 5), (2, 1), (1, 4), (2, 3), (4, 2), \
+        grid_shape = geometry.SQUARE
+        self.assertCountEqual( gzone.zone( grid_shape, 3, 3, 0 ), [(3,3)])
+        self.assertCountEqual( gzone.zone( grid_shape, 3, 3, 1 ), [(3, 2), (3, 3), (4, 4), (2, 3), (4, 3), (2, 2), (4, 2), (3, 4), (2, 4)])
+        self.assertCountEqual( gzone.zone( grid_shape, 3, 3, 2 ), [(2, 4), (3, 2), (5, 4), (1, 3), (4, 5), (2, 1), (1, 4), (2, 3), (4, 2), \
                                                                     (5, 1), (2, 5), (3, 5), (5, 3), (1, 2), (3, 3), (5, 5), (4, 4), (3, 1), \
                                                                     (1, 5), (4, 3), (2, 2), (4, 1), (5, 2), (3, 4), (1, 1)])
 

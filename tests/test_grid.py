@@ -5,7 +5,7 @@ Created on 20 nov. 2016
 '''
 import unittest
 
-from core import constants
+from core import geometry
 from core.Grid import Grid, SquareGrid, HexGrid
 
 
@@ -13,19 +13,19 @@ class Test(unittest.TestCase):
 
     def test_init(self):
         #square grid
-        _ = Grid( constants.SQUARE, 1, 1 )
+        _ = Grid( geometry.SQUARE, 1, 1 )
         _ = SquareGrid( 1, 1 )
         
         #hex grid
-        _ = Grid( constants.HEX, 1, 1 )
+        _ = Grid( geometry.HEX, 1, 1 )
         _ = HexGrid( 1, 1 )
 
     def test_geometry(self):
-        grid = Grid( constants.SQUARE, 1, 1 )
-        self.assertEqual( grid.geometry, constants.SQUARE )
+        grid = Grid( geometry.SQUARE, 1, 1 )
+        self.assertEqual( grid.geometry, geometry.SQUARE )
         
-        grid.geometry = constants.HEX
-        self.assertEqual( grid.geometry, constants.HEX )
+        grid.geometry = geometry.HEX
+        self.assertEqual( grid.geometry, geometry.HEX )
 
         def _set_invalid_geometry():
             grid.geometry = -1

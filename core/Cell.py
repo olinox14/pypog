@@ -3,7 +3,7 @@ Created on 8 nov. 2016
     Cell of a board game
 @author: olinox
 '''
-from core import constants
+from core import geometry
 
 
 class Cell(object):
@@ -47,12 +47,12 @@ class Cell(object):
     def __update_neighbours(self):
         """update the tuple of neighbours cells"""
         x, y = self._x, self._y
-        if self._geometry == constants.HEX:
+        if self._geometry == geometry.HEX:
             if 1 == (x % 2):
                 self._neighbours = ( (x, y-1), (x+1, y), (x+1, y+1), (x,  y+1), (x-1, y+1), (x-1, y) )
             else:
                 self._neighbours = ( (x, y-1), (x+1, y-1), (x+1, y), (x,  y+1), (x-1, y), (x-1, y-1) )
-        elif self._geometry == constants.SQUARE:
+        elif self._geometry == geometry.SQUARE:
             self._neighbours = ( (x-1, y-1), (x, y-1), (x+1, y-1), \
                                 (x-1, y)  , (x, y-1), (x+1, y)  , \
                                 (x-1, y+1), (x, y+1),(x+1, y+1) )

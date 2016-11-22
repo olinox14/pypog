@@ -7,29 +7,29 @@ Created on 7 nov. 2016
 '''
 from math import sqrt
 
-from core import constants
+from core import geometry
 
 
-def line2d(geometry, x1, y1, x2, y2):
+def line2d(grid_shape, x1, y1, x2, y2):
     """returns a line from x1,y1 to x2,y2
     grid could be one of the GRIDTYPES values"""
     if not all(isinstance(c, int) for c in [x1, y1, x2, y2]):
         raise TypeError("x1, y1, x2, y2 have to be integers")
     if (x1, y1) == (x2, y2):
         return [(x1, y1)]
-    if geometry == constants.HEX:
+    if grid_shape == geometry.HEX:
         return hex_2d_line(x1, y1, x2, y2)
-    elif geometry == constants.SQUARE: 
+    elif grid_shape == geometry.SQUARE: 
         return squ_2d_line(x1, y1, x2, y2)
     else:
         raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")
 
-def line3d(geometry, x1, y1, z1, x2, y2, z2):
+def line3d(grid_shape, x1, y1, z1, x2, y2, z2):
     """returns a line from x1,y1,z1 to x2,y2,z2
     grid could be one of the GRIDTYPES values"""
     if not all(isinstance(c, int) for c in [x1, y1, z1, x2, y2, z2]):
         raise TypeError("x1, y1, z1, x2, y2, z2 have to be integers")
-    hoLine = line2d(geometry, x1, y1, x2, y2)
+    hoLine = line2d(grid_shape, x1, y1, x2, y2)
     if z1 == z2:
         return [(x, y, z1) for x, y in hoLine]
     else:
