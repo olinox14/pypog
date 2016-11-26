@@ -9,24 +9,22 @@ if __name__ == "__main__":
     pypog_path = (os.path.abspath("..\\..\\"))
     sys.path.append(pypog_path)
 
-from PyQt5.QtCore import QPointF
-from PyQt5.QtGui import QPolygonF
-from PyQt5.QtWidgets import QMainWindow, QGraphicsPolygonItem, QGraphicsItem, \
-    QApplication, QGraphicsScene
+from PyQt5.QtCore import QPointF, Qt
+from PyQt5.QtWidgets import QMainWindow, \
+    QApplication, QGraphicsScene, QGraphicsView
 
 from core import geometry
-from core.graphic.cells import polygon
+from tests.gridviewer.GridViewerCell import GridViewerCell
 from tests.gridviewer.main import Ui_window
 
 
-# from PyQt5.Qt import QMainWindow, QApplication, QPolygonF, QGraphicsPolygonItem, \
-#     QGraphicsItem, QPointF
 class GridViewer(QMainWindow):
 
     def __init__(self):
         super (GridViewer, self).__init__()
         
         self._polygons = {}
+        self.selection = []
         self.createWidgets()
         
     def createWidgets(self):
@@ -37,9 +35,11 @@ class GridViewer(QMainWindow):
         self.ui.view.setScene(self._scene)
         self.ui.view.scale(0.25, 0.25)
         self.ui.view.centerOn(QPointF(0,0))
-        self.ui.view.setDragMode(1)
+        self.ui.view.setDragMode(QGraphicsView.NoDrag)
         
         self.ui.btn_make.clicked.connect(self.make_grid)
+        
+        self.ui.txt_coords.textChanged.connect(self.update_selected_cells)
 
         
     def make_grid(self):
@@ -58,17 +58,27 @@ class GridViewer(QMainWindow):
         
         for x in range(width):
             for y in range(height):
-                points = [QPointF(xp, yp) for xp, yp in polygon(shape, x, y)]
                 
-                qpolygon = QPolygonF( points )
+                cell = GridViewerCell(self, x, y)
+                cell.generate(shape)
                 
-                graphic_polygon = QGraphicsPolygonItem(qpolygon)
-                
-                self._scene.addItem(graphic_polygon)
-                
-                graphic_polygon.setFlag(QGraphicsItem.ItemIsFocusable)
-                
-                self._polygons[(x, y)] = graphic_polygon
+                self._scene.addItem(cell)   
+                             
+                self._polygons[(x, y)] = cell
+
+
+    def add_to_selection(self, x, y):
+        self.selection.append( (x, y) )
+    
+        self.ui.txt_coords.setText( str(self.selection) )
+    
+    def remove_from_selection(self, x, y):
+        self.selection.remove( (x, y) )
+        
+        self.ui.txt_coords.setText( str(self.selection) )
+        
+    def update_selected_cells(self):
+        pass
 
 
 if __name__ == "__main__":
