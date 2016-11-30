@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>910</width>
-    <height>669</height>
+    <height>658</height>
    </rect>
   </property>
   <property name="font">
@@ -17,7 +17,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>GridViewer</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,0">
@@ -271,19 +271,9 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QTextEdit" name="txt_coords">
-        <property name="minimumSize">
-         <size>
-          <width>183</width>
-          <height>0</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <property name="topMargin">
-         <number>10</number>
+         <number>0</number>
         </property>
         <item>
          <spacer name="horizontalSpacer">
@@ -338,26 +328,19 @@
         </item>
        </layout>
       </item>
+      <item>
+       <widget class="QTextEdit" name="txt_coords">
+        <property name="minimumSize">
+         <size>
+          <width>183</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>910</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuFichier">
-    <property name="title">
-     <string>Fichier</string>
-    </property>
-    <addaction name="actionQuitter"/>
-   </widget>
-   <addaction name="menuFichier"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionQuitter">
