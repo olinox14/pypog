@@ -29,7 +29,7 @@ class Test(unittest.TestCase):
  
         line = gline.line2d(grid_shape, 3,0,3,3)
         self.assertEqual(line, [(3,0), (3,1), (3,2), (3,3)] )
- 
+        
         
     def test_squ_line(self):
         """ 2d line on square grid """

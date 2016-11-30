@@ -23,7 +23,6 @@ class GridViewer(QMainWindow):
 
     def __init__(self):
         super (GridViewer, self).__init__()
-        
         self.cells = {}
         self.selection = []
         self.createWidgets()
@@ -34,7 +33,7 @@ class GridViewer(QMainWindow):
         
         self._scene = QGraphicsScene()
         self.ui.view.setScene(self._scene)
-        self.ui.view.scale(0.25, 0.25)
+        self.ui.view.scale(0.5, 0.5)
         self.ui.view.centerOn(QPointF(0,0))
         self.ui.view.setDragMode(QGraphicsView.NoDrag)
         
@@ -43,6 +42,10 @@ class GridViewer(QMainWindow):
         self.ui.btn_make.clicked.connect(self.make_grid)
         self.ui.btn_updateSelection.clicked.connect(self.update_selected_cells)
         self.ui.btn_toClipboard.clicked.connect(self.to_clipboard)
+        self.ui.btn_zoom_plus.clicked.connect(self.zoom_plus)
+        self.ui.btn_zoom_minus.clicked.connect(self.zoom_minus)
+        
+        self.ui.chk_displayCoords.toggled.connect(self.update_cell_labels)
         
         self.make_grid()
         
@@ -98,6 +101,18 @@ class GridViewer(QMainWindow):
         data = QMimeData()
         data.setText(self.ui.txt_coords.toPlainText())
         app.clipboard().setMimeData(data)
+
+
+    def update_cell_labels(self):
+        for cell in self.cells.values():
+            cell.show_label( bool(self.ui.chk_displayCoords.isChecked()) )
+
+    def zoom_plus(self):
+        self.ui.view.scale(1.1, 1.1)
+
+    def zoom_minus(self):
+        self.ui.view.scale(0.9, 0.9)
+
 
 
 if __name__ == "__main__":

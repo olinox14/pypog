@@ -4,9 +4,11 @@ Created on 26 nov. 2016
 @author: olinox
 '''
 from PyQt5.QtCore import QPointF, pyqtSignal, QObject
-from PyQt5.QtGui import QPolygonF, QPen, QBrush, QColor
-from PyQt5.QtWidgets import QGraphicsPolygonItem, QGraphicsItem
+from PyQt5.QtGui import QPolygonF, QPen, QBrush, QColor, QFont
+from PyQt5.QtWidgets import QGraphicsPolygonItem, QGraphicsItem, \
+    QGraphicsSimpleTextItem
 
+from core import geometry
 from core.graphic.cells import polygon
 
 
@@ -19,10 +21,9 @@ class GridViewerCell(QGraphicsPolygonItem):
         self.y = y
         self.selected = False
         
-    def generate(self, shape):
+    def generate(self, shape, scale=120):
         
-        points = [QPointF(xp, yp) for xp, yp in polygon(shape, self.x, self.y)]
-        
+        points = [QPointF(xp, yp) for xp, yp in polygon(shape, self.x, self.y, scale)]
         qpolygon = QPolygonF( points )
         
         self.setPolygon(qpolygon)
@@ -32,6 +33,20 @@ class GridViewerCell(QGraphicsPolygonItem):
         self.setPen(pen)
         
         self.setFlag(QGraphicsItem.ItemIsFocusable)   
+        
+        self.label = QGraphicsSimpleTextItem("{}-{}".format(self.x, self.y), parent=self)
+        k = 0
+        if (self.x % 2) != 0: 
+            k = 0.5
+            
+        if shape == geometry.HEX:
+            self.label.setPos(QPointF(((self.x*0.866)+0.2886)*scale,  (self.y+k+0.5)*scale))
+        else:
+            self.label.setPos(QPointF(self.x*scale,  self.y*scale))
+        
+        font = QFont()
+        font.setPointSize(20)
+        self.label.setFont( font )
         
     def select(self):
         self.setBrush( QBrush( QColor(200,0,0, 100) ) )
@@ -49,4 +64,8 @@ class GridViewerCell(QGraphicsPolygonItem):
             self.unselect()
         else:
             self.select()
-             
+    
+    def show_label(self, visible):
+        self.label.setVisible(visible)
+        
+    
