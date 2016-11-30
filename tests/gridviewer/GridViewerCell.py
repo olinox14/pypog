@@ -33,17 +33,20 @@ class GridViewerCell(QGraphicsPolygonItem):
         
         self.setFlag(QGraphicsItem.ItemIsFocusable)   
         
+    def select(self):
+        self.setBrush( QBrush( QColor(200,0,0, 100) ) )
+        self.selected = True
+        self.gridViewer.add_to_selection(self.x, self.y)        
+
+    def unselect(self):
+        self.setBrush( QBrush(  ) )
+        self.selected = False
+        self.gridViewer.remove_from_selection(self.x, self.y)
+
     def mousePressEvent(self, *args, **kwargs):
 
         if self.selected:
-            self.setBrush( QBrush(  ) )
-            self.selected = False
-            self.gridViewer.remove_from_selection(self.x, self.y)
+            self.unselect()
         else:
-            self.setBrush( QBrush( QColor(200,0,0, 100) ) )
-            self.selected = True
-            self.gridViewer.add_to_selection(self.x, self.y)
+            self.select()
              
-#         return QGraphicsPolygonItem.mousePressEvent(self, *args, **kwargs)
-    
-    

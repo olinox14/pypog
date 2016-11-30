@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>791</width>
+    <width>910</width>
     <height>669</height>
    </rect>
   </property>
@@ -20,7 +20,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,1">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,0">
     <property name="spacing">
      <number>3</number>
     </property>
@@ -42,6 +42,25 @@
        <number>3</number>
       </property>
       <item>
+       <widget class="QLabel" name="lbl_title">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="text">
+         <string>Grid Viewer</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QGraphicsView" name="view"/>
       </item>
       <item>
@@ -61,7 +80,7 @@
         <item>
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>Grid Viewer</string>
+           <string>Update Grid</string>
           </property>
          </widget>
         </item>
@@ -110,7 +129,7 @@
          <widget class="QSpinBox" name="spb_width">
           <property name="minimumSize">
            <size>
-            <width>20</width>
+            <width>38</width>
             <height>28</height>
            </size>
           </property>
@@ -154,7 +173,7 @@
          <widget class="QSpinBox" name="spb_height">
           <property name="minimumSize">
            <size>
-            <width>20</width>
+            <width>38</width>
             <height>28</height>
            </size>
           </property>
@@ -193,7 +212,82 @@
      </layout>
     </item>
     <item>
-     <widget class="QTextEdit" name="txt_coords"/>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QTextEdit" name="txt_coords">
+        <property name="minimumSize">
+         <size>
+          <width>183</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="topMargin">
+         <number>10</number>
+        </property>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QToolButton" name="btn_updateSelection">
+          <property name="minimumSize">
+           <size>
+            <width>132</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>132</width>
+            <height>1000</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Update selection</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="btn_toClipboard">
+          <property name="minimumSize">
+           <size>
+            <width>84</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>84</width>
+            <height>1000</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>To clipboard</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -202,8 +296,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>791</width>
-     <height>19</height>
+     <width>910</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFichier">
