@@ -5,8 +5,7 @@ Created on 22 nov. 2016
 '''
 import unittest
 
-from core import geometry
-from core.geometry import gtriangle
+from pypog import geometry
 
 
 class Test(unittest.TestCase):
@@ -16,8 +15,8 @@ class Test(unittest.TestCase):
         """test triangle algorithms on square grid"""
         grid_shape = geometry.SQUARE
         
-        for i in gtriangle.ANGLES:
-            self.assertCountEqual(gtriangle.triangle(grid_shape, 0, 0, 0, 0, i), [(0,0)])
+        for i in geometry.ANGLES:
+            self.assertCountEqual(geometry.triangle(grid_shape, 0, 0, 0, 0, i), [(0,0)])
 
         #TODO: complete
 
@@ -25,8 +24,8 @@ class Test(unittest.TestCase):
     def test_hex_triangle(self):
         """test triangle algorithms on hexagonal grid"""
         grid_shape = geometry.HEX
-        for i in gtriangle.ANGLES:
-            self.assertCountEqual(gtriangle.triangle(grid_shape, 0, 0, 0, 0, i), [(0,0)])
+        for i in geometry.ANGLES:
+            self.assertCountEqual(geometry.triangle(grid_shape, 0, 0, 0, 0, i), [(0,0)])
         #TODO: complete
     
     def test_sq_triangle_3d(self):
@@ -42,12 +41,12 @@ class Test(unittest.TestCase):
     def test_errors(self):
         
         for grid_shape in (geometry.HEX, geometry.SQUARE):
-            self.assertRaises(ValueError, gtriangle.triangle, grid_shape, 0, 0, 0, 0, 0)
-            self.assertRaises(TypeError, gtriangle.triangle, grid_shape, "a", 0, 0, 0, 1)
-            self.assertRaises(TypeError, gtriangle.triangle, grid_shape, 0, "a", 0, 0, 1)
-            self.assertRaises(TypeError, gtriangle.triangle, grid_shape, 0, 0, "a", 0, 1)
-            self.assertRaises(TypeError, gtriangle.triangle, grid_shape, 0, 0, 0, "a", 1)
-            self.assertRaises(ValueError, gtriangle.triangle, grid_shape, 0, 0, 0, 0, "a")
+            self.assertRaises(ValueError, geometry.triangle, grid_shape, 0, 0, 0, 0, 0)
+            self.assertRaises(TypeError, geometry.triangle, grid_shape, "a", 0, 0, 0, 1)
+            self.assertRaises(TypeError, geometry.triangle, grid_shape, 0, "a", 0, 0, 1)
+            self.assertRaises(TypeError, geometry.triangle, grid_shape, 0, 0, "a", 0, 1)
+            self.assertRaises(TypeError, geometry.triangle, grid_shape, 0, 0, 0, "a", 1)
+            self.assertRaises(ValueError, geometry.triangle, grid_shape, 0, 0, 0, 0, "a")
     
 
 if __name__ == "__main__":

@@ -1,8 +1,10 @@
 '''
-Created on 25 nov. 2016
+Created on 5 déc. 2016
 
 @author: olinox
 '''
+from pypog.geometry import line2d, zone
+
 
 class BasePencil(object):
     
@@ -60,3 +62,35 @@ class BasePencil(object):
     def _update(self):
         pass
         
+        
+class LinePencil(BasePencil):
+    def __init__(self, *args):
+        BasePencil.__init__(*args)
+        
+    def _update(self):
+        x0, y0 = self.origin
+        x, y = self.position
+        
+        result = set([])
+        line = line2d(self._grid.cell_shape, x0, y0, x, y)
+        for x, y in line:
+            result |= set( zone(self._grid.cell_shape, x, y, self.size) )
+        
+        self._added = list( result - self._selection )
+        self._removed = list( self._selection - result ) 
+        self._selection = list( result )
+
+
+class SimplePencil(BasePencil):
+    def __init__(self, *args):
+        BasePencil.__init__(*args)
+        
+    def _update(self):
+        x, y = self.position
+        zone = zone(self._grid.cell_shape, x, y, self.size)
+
+        self._added = list( set(zone) - set(self._selection) )
+        self._selection = list( set(self._selection) + set(zone))
+        
+        
+

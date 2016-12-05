@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QMainWindow, \
     QApplication, QGraphicsScene, QGraphicsView, QMessageBox
 import ipdb  # until I find another way to print traceback with pyqt5
 
-from core import geometry
+from pypog import geometry
 from tests.gridviewer.GridViewerCell import GridViewerCell
 from tests.gridviewer.main import Ui_window
 

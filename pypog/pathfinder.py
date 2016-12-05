@@ -3,15 +3,14 @@ Created on 17 déc. 2015
    Implement the A* algorithm
 @author: olivier.massot
 '''
-from core.geometry import cube_coords
-
+from pypog import geometry
 
 def distance(coord1, coord2):
     """distance between 1 and 2"""
     x1, y1 = coord1
-    xu1, yu1, zu1 = cube_coords.cv_off_cube(x1, y1)
+    xu1, yu1, zu1 = geometry.cv_off_cube(x1, y1)
     x2, y2 = coord2
-    xu2, yu2, zu2 = cube_coords.cv_off_cube(x2, y2)
+    xu2, yu2, zu2 = geometry.cv_off_cube(x2, y2)
     return max(abs(xu1 - xu2), abs(yu1 - yu2), abs(zu1 - zu2))
 
 def square_distance(coord1, coord2):
@@ -48,10 +47,13 @@ class Node():
         """distance (en cases) entre deux coordonnees"""
         x1, y1 = coord1
         x2, y2 = coord2
-        return cube_coords.distance_off(x1, y1, x2, y2)
+        return geometry.distance_off(x1, y1, x2, y2)
     
+def _default_moving_cost_function(x, y):
+    return 1
 
-def path(grid, origin, target, abilities = None):
+
+def path(grid, origin, target, moving_cost_function = None):
     """return the shorter path from origin to target on the Grid object
     the path is estimated following:
     - geometry of the grid
@@ -62,6 +64,9 @@ def path(grid, origin, target, abilities = None):
     
     origin and target should be Cell objects
     """
+    if moving_cost_function == None:
+        moving_cost_function = _default_moving_cost_function
+    
     nodes = {}  # coord: node
 
     nO = Node(origin)
@@ -79,8 +84,8 @@ def path(grid, origin, target, abilities = None):
         
         for coord in [coord for coord in neighbours if not coord in nodes.keys()]:
 
-                # !!! need a calculate cost function !!!
-                cost = 1
+                x, y = coord
+                cost = moving_cost_function(x, y)
                 if cost < 0:
                     continue
                 
@@ -90,7 +95,7 @@ def path(grid, origin, target, abilities = None):
 
                 try:
                     existing = nodes[coord]
-                    if existing.cout <= node.cout:
+                    if existing.cost <= node.cost:
                         continue
                 except KeyError:
                     pass
@@ -101,8 +106,7 @@ def path(grid, origin, target, abilities = None):
             print("No path found")
             return []
         
-        best = min(nodes.values(), key=lambda x: x.cout)
-#         retenus.append(meilleur)
+        best = min(nodes.values(), key=lambda x: x.cost)
         del nodes[best.coord]
         position = best
     

@@ -3,14 +3,13 @@ Created on 26 nov. 2016
 
 @author: olinox
 '''
-from PyQt5.QtCore import QPointF, pyqtSignal, QObject
+from PyQt5.QtCore import QPointF
 from PyQt5.QtGui import QPolygonF, QPen, QBrush, QColor, QFont
 from PyQt5.QtWidgets import QGraphicsPolygonItem, QGraphicsItem, \
     QGraphicsSimpleTextItem
 
-from core import geometry
-from core.graphic.cells import polygon
-
+from pypog import geometry
+from pypog import graphic
 
 class GridViewerCell(QGraphicsPolygonItem):
     
@@ -23,7 +22,7 @@ class GridViewerCell(QGraphicsPolygonItem):
         
     def generate(self, shape, scale=120):
         
-        points = [QPointF(xp, yp) for xp, yp in polygon(shape, self.x, self.y, scale)]
+        points = [QPointF(xp, yp) for xp, yp in graphic.polygon(shape, self.x, self.y, scale)]
         qpolygon = QPolygonF( points )
         
         self.setPolygon(qpolygon)

@@ -1,9 +1,10 @@
 '''
-Created on 26 nov. 2016
+Created on 5 dec. 2016
 
 @author: olinox
 '''
-from core import geometry
+
+from pypog import geometry
 
 
 def polygon(shape, x, y, scale = 120):
@@ -20,7 +21,7 @@ def polygon(shape, x, y, scale = 120):
                    ( ((x*0.866)+0.2886) * scale ,   (y+1) * scale),  \
                    ( (x*0.866) * scale          ,   (y+0.5) * scale) 
                 ]
-        
+
     elif shape == geometry.SQUARE :
         
         return  [ 

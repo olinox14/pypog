@@ -5,8 +5,8 @@ Created on 20 nov. 2016
 '''
 import unittest
 
-from core import geometry
-from core.Grid import Grid, SquareGrid, HexGrid
+from pypog import geometry
+from pypog.Grid import Grid, SquareGrid, HexGrid
 
 
 class Test(unittest.TestCase):
@@ -20,16 +20,16 @@ class Test(unittest.TestCase):
         _ = Grid( geometry.HEX, 1, 1 )
         _ = HexGrid( 1, 1 )
 
-    def test_grid_shape(self):
+    def test_cell_shape(self):
         grid = Grid( geometry.SQUARE, 1, 1 )
-        self.assertEqual( grid.grid_shape, geometry.SQUARE )
+        self.assertEqual( grid.cell_shape, geometry.SQUARE )
         
-        grid.grid_shape = geometry.HEX
-        self.assertEqual( grid.grid_shape, geometry.HEX )
+        grid.cell_shape = geometry.HEX
+        self.assertEqual( grid.cell_shape, geometry.HEX )
 
-        def _set_invalid_grid_shape():
-            grid.grid_shape = -1
-        self.assertRaises( ValueError, _set_invalid_grid_shape )
+        def _set_invalid_cell_shape():
+            grid.cell_shape = -1
+        self.assertRaises( ValueError, _set_invalid_cell_shape )
 
     def test_dimensions(self):
         
