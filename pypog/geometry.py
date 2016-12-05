@@ -1,14 +1,27 @@
 '''
 Created on 5 dec. 2016
-    Implementation of bresenham algorithm
+    Geometric functions on hexagonal or square grids
     
-    Compute lines between coordinates in 2d or 3d, on hexagonal or square grid
+    > Line algorithm is an implementation of bresenham algorithm
+    
+    2D functions return lists of (x, y) coordinates
+    3D functions return lists of (x, y, z) coordinates
+    
+    * neighbours_of function return the list of the cells around the (x, y) cell
+    * zone function return the list of the cells surrounding the (x, y) cell within a 'radius' distance
+    * line2d function return the list of the cells on a line between the (x1, y1) cell and the (x2, y2) cell
+    * line3d function return the list of the cells on a line between the (x1, y1, z1) cell and the (x2, y2, z2) cell
+    * rect function return the list of the cells in the rectangle between the cells (x1, y1), (x2, y1), , (x2, y2) and , (x1, y2)
+    * hollow_rect function return the list of the cells on the borders of the rectangle between the cells (x1, y1), (x2, y1), , (x2, y2) and , (x1, y2)
+    * triangle function return the list of the cells in a triangle from its apex (xa, ya) to its base (xh, yh)
+    * triangle3d function return the list of the cells in a cone from its apex (xa, ya, za) to its base (xh, yh, zh)
+    
 @author: olinox
 '''
 from math import sqrt
 
 
-GRID_GEOMETRIES = [4, 5]
+GRID_GEOMETRIES = (4, 5)
 SQUARE = 4
 HEX = 5
 ANGLES = (1, 2, 3)
