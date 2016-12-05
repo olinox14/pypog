@@ -40,7 +40,7 @@ def squ_neighbours_of(x, y):
 
 ## zones
 
-def zone(grid_shape, x0, y0, radius):
+def zone(cell_shape, x0, y0, radius):
     """ returns the list of the coordinates of the cells in the zone around (x0, y0)
     """
     if not all(isinstance(c, int) for c in [x0, y0, radius]):
@@ -52,33 +52,33 @@ def zone(grid_shape, x0, y0, radius):
     for _ in range(0, radius):
         current = buffer
         for x, y in current:
-            buffer |= frozenset( neighbours_of( grid_shape, x, y ) )
+            buffer |= frozenset( neighbours_of( cell_shape, x, y ) )
 
     return list(buffer)
 
 
 ## line : bresenham algorithm
 
-def line2d(grid_shape, x1, y1, x2, y2):
+def line2d(cell_shape, x1, y1, x2, y2):
     """returns a line from x1,y1 to x2,y2
     grid could be one of the GRIDTYPES values"""
     if not all(isinstance(c, int) for c in [x1, y1, x2, y2]):
         raise TypeError("x1, y1, x2, y2 have to be integers")
     if (x1, y1) == (x2, y2):
         return [(x1, y1)]
-    if grid_shape == HEX:
+    if cell_shape == HEX:
         return hex_2d_line(x1, y1, x2, y2)
-    elif grid_shape == SQUARE: 
+    elif cell_shape == SQUARE: 
         return squ_2d_line(x1, y1, x2, y2)
     else:
         raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")
 
-def line3d(grid_shape, x1, y1, z1, x2, y2, z2):
+def line3d(cell_shape, x1, y1, z1, x2, y2, z2):
     """returns a line from x1,y1,z1 to x2,y2,z2
     grid could be one of the GRIDTYPES values"""
     if not all(isinstance(c, int) for c in [x1, y1, z1, x2, y2, z2]):
         raise TypeError("x1, y1, z1, x2, y2, z2 have to be integers")
-    hoLine = line2d(grid_shape, x1, y1, x2, y2)
+    hoLine = line2d(cell_shape, x1, y1, x2, y2)
     if z1 == z2:
         return [(x, y, z1) for x, y in hoLine]
     else:

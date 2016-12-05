@@ -3,10 +3,13 @@ Created on 5 déc. 2016
 
 @author: olinox
 '''
+from abc import ABCMeta
+
 from pypog.geometry import line2d, zone
 
 
 class BasePencil(object):
+    __metaclass__ = ABCMeta
     
     def __init__(self, grid):
         self._grid = grid
@@ -93,4 +96,5 @@ class SimplePencil(BasePencil):
         self._selection = list( set(self._selection) + set(zone))
         
         
+
 

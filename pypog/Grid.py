@@ -25,8 +25,7 @@ class Grid(object):
             for y in range(self.height):
                 cell = Cell(self.cell_shape, x, y)
                 self._cells[(x, y)] = cell
-        
-        
+
     # properties
     @property
     def cell_shape(self):
@@ -98,11 +97,11 @@ class Grid(object):
 
 
     # pathfinding methods
-    def moving_cost(self, x, y):
+    def moving_cost(self, *args):
         return 1
     
     def path(self, x1, y1, x2, y2):
-        return pathfinder.path( self, (x1, y1), (x2,y2), self.moving_cost )
+        return pathfinder.path( self, (x1, y1), (x2,y2), self.moving_cost_function )
 
     
 class HexGrid(Grid):
