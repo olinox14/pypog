@@ -21,9 +21,9 @@ Created on 5 dec. 2016
 from math import sqrt
 
 
-GRID_GEOMETRIES = (4, 5)
+GRID_GEOMETRIES = (4, 6)
 SQUARE = 4
-HEX = 5
+HEX = 6
 ANGLES = (1, 2, 3)
 
 ## neigbours
@@ -507,6 +507,62 @@ def triangle_hex_3d(xa, ya, za, xh, yh, zh, iAngle):
         result[ (x, y) ] = ( (min(z_list) - dh) , (max(z_list) + dh) ) 
     return result
 
+## pivot
+
+def pivot(cell_shape, center, coordinates, rotations):
+    """pivot 'rotations' times the coordinates (list of (x, y) tuples) 
+    around the center coordinates (x,y)
+    Rotation is counterclockwise"""
+    if cell_shape == SQUARE:
+        return squ_pivot(center, coordinates, rotations)
+    elif cell_shape == HEX: 
+        return hex_pivot(center, coordinates, rotations)
+    else:
+        raise ValueError("'cell_shape' has to be a value from GRID_GEOMETRIES")
+
+
+def hex_pivot(center, coordinates, rotations):
+    """pivot 'rotations' times the coordinates (list of (x, y) tuples) 
+    around the center coordinates (x,y)
+    On hexagonal grid, rotates of 60 degrees each time"""
+    if coordinates == [center] or rotations%6 == 0:
+        return coordinates
+    
+    x0, y0 = center
+    xu0, yu0, zu0 = cv_off_cube(x0, y0)
+    result = []
+    
+    for x, y in coordinates:
+        xu, yu, zu = cv_off_cube(x, y)
+        dxu, dyu, dzu = xu - xu0, yu - yu0, zu - zu0
+        for _ in range(rotations):
+            dxu, dyu, dzu = -dzu, -dxu, -dyu
+        xru, yru, zru = dxu + xu0, dyu + yu0, dzu + zu0
+        xr, yr = cv_cube_off(xru, yru, zru)
+        result.append( (xr, yr) )
+        
+    return result
+
+def squ_pivot(center, coordinates, rotations):
+    """pivot 'rotations' times the coordinates (list of (x, y) tuples) 
+    around the center coordinates (x,y)
+    On square grid, rotates of 90 degrees each time"""
+    if coordinates == [center] or rotations%4 == 0:
+        return coordinates
+    
+    x0, y0 = center
+    result = []
+    
+    for x, y in coordinates:
+        
+        dx, dy = x - x0, y - y0
+        for _ in range(rotations):
+            dx, dy = dy, -dx
+            
+        xr, yr = dx + x0, dy + y0
+        result.append( (xr, yr) )
+        
+    return result
 
 ## cubic coordinates
 def cv_cube_off(xu, yu, zu):

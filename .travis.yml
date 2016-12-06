@@ -4,6 +4,7 @@ python:
   - "3.4"
   - "3.5"
 install:
+  - pip install cov-core
   - pip install nose2
   - pip install coveralls
 script: 

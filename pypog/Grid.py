@@ -8,7 +8,7 @@ from pypog import pathfinder
 
 
 class Grid(object):
-    def __init__(self, cell_shape, width, height):
+    def __init__(self, cell_shape, width, height, roof = None):
         self._cell_shape = None
         self.cell_shape = cell_shape
         
@@ -17,6 +17,8 @@ class Grid(object):
         self._height = 0
         self.height = height
         
+        self._roof = roof
+
         self._cells = {}
         self._build()
         
@@ -57,6 +59,9 @@ class Grid(object):
             raise ValueError("'width' has to be a strictly positive integer")
         self._height = height    
     
+    @property
+    def roof(self):
+        return self._roof
     
     def cell(self, x, y):
         return self._cells[(x, y)]
