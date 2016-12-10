@@ -7,6 +7,14 @@ from pypog import geometry
 from pypog import pathfinder
 
 
+ORIGIN_HPOSITION_LEFT = 0
+ORIGIN_HPOSITION_MIDDLE = 1
+ORIGIN_HPOSITION_RIGHT = 2
+ORIGIN_VPOSITION_TOP = 10
+ORIGIN_VPOSITION_MIDDLE = 11
+ORIGIN_VPOSITION_BOTTOM = 12
+
+
 class Grid(object):
     def __init__(self, cell_shape, width, height, roof = None):
         self._cell_shape = None
@@ -108,7 +116,7 @@ class Grid(object):
     def path(self, x1, y1, x2, y2):
         return pathfinder.path( self, (x1, y1), (x2,y2), self.moving_cost_function )
 
-    
+
 class HexGrid(Grid):
     def __init__(self, width, height):
         Grid.__init__(self, geometry.HEX, width, height)

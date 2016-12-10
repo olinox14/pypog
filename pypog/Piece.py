@@ -134,13 +134,16 @@ class Piece(object):
         occupation = self.occupation()
         return [(x, y, z) for x, y in occupation for z in range(dz + self.zR, dz + self.zR + self.height)]
 
-    def move(self, x, y, zR = None):
-        """move the piece to (x, y) position and zR relative altitude"""
+    def move_to(self, x, y, zR = None):
+        """move the piece to (x, y) position and is requested to zR relative altitude"""
         self.position = x, y
         if zR != None:
             self.zR = zR
     
     def rotate(self, i):
-        """pivot the Piece i times (counterclockwise rotation)"""
-        self.rotation += i
+        """pivot the Piece i times (counterclockwise rotation, i can be negative)"""
+        new_rotation = self.rotation + i
+        self.rotation = new_rotation % self.cell_shape
+        
+        
         

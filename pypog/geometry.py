@@ -1,9 +1,6 @@
 '''
-Created on 5 dec. 2016
     Geometric functions on hexagonal or square grids
-    
-    > Line algorithm is an implementation of bresenham algorithm
-    
+
     2D functions return lists of (x, y) coordinates
     3D functions return lists of (x, y, z) coordinates
     
@@ -15,8 +12,9 @@ Created on 5 dec. 2016
     * hollow_rect function return the list of the cells on the borders of the rectangle between the cells (x1, y1), (x2, y1), , (x2, y2) and , (x1, y2)
     * triangle function return the list of the cells in a triangle from its apex (xa, ya) to its base (xh, yh)
     * triangle3d function return the list of the cells in a cone from its apex (xa, ya, za) to its base (xh, yh, zh)
+    * pivot function return a list of coordinates after a counterclockwise rotation of a given list of coordinates, around a given center
     
-@author: olinox
+@author: olinox14
 '''
 from math import sqrt
 
@@ -26,9 +24,10 @@ SQUARE = 4
 HEX = 6
 ANGLES = (1, 2, 3)
 
-## neigbours
+## neighbours
 
 def neighbours_of(cell_shape, x, y):
+    """ returns the list of coords of the neighbours of a cell"""
     if cell_shape == SQUARE:
         return squ_neighbours_of(x, y)
     elif cell_shape == HEX: 
@@ -291,6 +290,9 @@ def hollow_rect(x1, y1, x2, y2):
 
 
 def triangle(cell_shape, xa, ya, xh, yh, iAngle):
+    """Returns a list of (x, y) coordinates in a triangle
+    A is the top of the triangle, H if the middle of the base
+    """
     if cell_shape == SQUARE:
         return triangle_sq(xa, ya, xh, yh, iAngle)
     elif cell_shape == HEX: 
@@ -299,6 +301,9 @@ def triangle(cell_shape, xa, ya, xh, yh, iAngle):
         raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")
 
 def triangle3d(cell_shape, xa, ya, za, xh, yh, zh, iAngle):
+    """Returns a list of (x, y, z) coordinates in a 3d-cone
+    A is the top of the cone, H if the center of the base
+    """
     if cell_shape == SQUARE:
         return triangle_sq_3d(xa, ya, za, xh, yh, zh, iAngle)
     elif cell_shape == HEX: 
@@ -600,14 +605,9 @@ def hex_distance_cube(xa, ya, za, xb, yb, zb):
     return max(abs(xa - xb), abs(ya - yb), abs(za - zb))
 
 def distance_off(xa, ya, xb, yb):
-        """ distance between A and B (offset coordinates)"""
-        # 10 times quicker if no conversion...
-        xua, yua, zua = cv_off_cube(xa, ya)
-        xub, yub, zub = cv_off_cube(xb, yb)
-        return max(abs(xua - xub), abs(yua - yub), abs(zua - zub))
-    
-
-
-    
-    
+    """ distance between A and B (offset coordinates)"""
+    # 10 times quicker if no conversion...
+    xua, yua, zua = cv_off_cube(xa, ya)
+    xub, yub, zub = cv_off_cube(xb, yb)
+    return max(abs(xua - xub), abs(yua - yub), abs(zua - zub))
     
