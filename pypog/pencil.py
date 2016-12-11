@@ -16,11 +16,7 @@ Created on 5 dec. 2016
 '''
 from abc import ABCMeta
 
-from prompt_toolkit import selection
-
 from pypog import geometry
-from pypog.Grid import HexGrid
-
 
 class BasePencil(object):
     """Base class of all pencils
@@ -34,7 +30,6 @@ class BasePencil(object):
         
         self._origin = None
         self._position = None
-        self._positions_history = []
         
         self._size = 1
         self._selection = set()
@@ -114,9 +109,7 @@ class BasePencil(object):
         if self._origin == None:
             raise Exception("Pencil has to be started before any update: use 'start' method")
         self._position = (x, y)
-        if not (x, y) in  self._positions_history:
-            self._positions_history.append( (x, y) )
-            self._update()
+        self._update()
         
 class LinePencil(BasePencil):
     """Paint a 2d line between origin and position"""
@@ -141,7 +134,7 @@ class LinePencil(BasePencil):
         self._selection = result
 
 
-class SimplePencil(BasePencil):
+class FreePencil(BasePencil):
     """Free handed pencil"""
     def __init__(self, *args):
         BasePencil.__init__(self, *args)
@@ -212,6 +205,76 @@ class PaintPotPencil(BasePencil):
         self._selection = current_selection
         
         
+def RectanglePencil(BasePencil):
+    """ RectanglePencil draw a plain rectangle with origin being the 
+    top left corner, and position the bottom right corner"""
+    def __init__(self, *args):
+        BasePencil.__init__(self, *args)
+        
+    def _update(self):
+        x1, y1 = self._origin
+        x2, y2 = self._position
+        
+        new_selection = set( geometry.rect(x1, y1, x2, y2) )
+        
+        self._added = new_selection - self._selection
+        self._removed = self._selection - new_selection
+        self._selection = new_selection
+        
+def HollowRectanglePencil(BasePencil):
+    """ HollowRectanglePencil draw an hollow rectangle with origin being the 
+    top left corner, and position the bottom right corner"""
+    def __init__(self, *args):
+        BasePencil.__init__(self, *args)
+        
+    def _update(self):
+        x1, y1 = self._origin
+        x2, y2 = self._position
+        
+        new_selection = set( geometry.hollow_rect(x1, y1, x2, y2) )
+        
+        self._added = new_selection - self._selection
+        self._removed = self._selection - new_selection
+        self._selection = new_selection
 
+class BoundaryPencil(BasePencil):
+    """ BoundaryPencil is a particular pencil which select all the cells 
+    on the left of a straight line which could be oriented from 0, 45, 90, 135, 180, 225, 270, 315 degrees
+    Orientation  of the boudary depends on position and origin."""
+    
+    def __init__(self, *args):
+        BasePencil.__init__(self, *args)
 
+    def _update(self):
+        
+        if self._position == self._origin:
+            self._removed = self._selection.copy()
+            self._selection = set()
+            self._added = set()
+            return
+        
+        x0, y0 = self._origin
+        x, y = self._position
+        dx, dy = x - x0, y - y0
 
+        if dx == 0:   # vertical boudary
+            selection = {(x, y) for x, y in self._grid.cells.keys() if (x - x0) * dy >= 0}
+
+        elif dy == 0:  # horizontal boundary
+            selection = {(x, y) for x, y in self._grid.cells.keys() if (y - y0) * (-dx) >= 0} 
+            
+        elif dx > 0 and dy < 0:  # normal vector to the top left
+            selection = {(x , y) for x, y in self._grid.cells.keys() if (x - x0) + (y - y0) <= 0} 
+            
+        elif dx > 0 and dy > 0: # normal vector to the top right
+            selection = {(x , y) for x, y in self._grid.cells.keys() if (x - x0) - (y - y0) >= 0}
+            
+        elif dx < 0 and dy < 0:  # normal vector to bottom left
+            selection = {(x , y) for x, y in self._grid.cells.keys() if - (x - x0) + (y - y0) >= 0}
+            
+        elif dx < 0 and dy > 0:  # normal vector to bottom right
+            selection = {(x , y) for x, y in self._grid.cells.keys() if - (x - x0) - (y - y0) <= 0}
+        
+        self._added = selection - self._selection
+        self._removed = self._selection - selection
+        self._selection = selection
