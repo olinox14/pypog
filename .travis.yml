@@ -8,6 +8,6 @@ install:
   - pip install nose2
   - pip install coveralls
 script: 
-  - nose2 --with-coverage
+  - nose2 --with-coverage --coverage pypog
 after_success:
   coveralls

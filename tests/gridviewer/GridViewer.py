@@ -50,6 +50,8 @@ class GridViewer(QMainWindow):
         self.make_grid()
         
     def make_grid(self):
+        
+        self.selection = []
         shape = geometry.HEX if self.ui.opt_hex.isChecked() else geometry.SQUARE
         width = self.ui.spb_width.value()
         height = self.ui.spb_height.value()

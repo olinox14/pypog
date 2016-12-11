@@ -33,7 +33,7 @@ def neighbours_of(cell_shape, x, y):
     elif cell_shape == HEX: 
         return hex_neighbours_of(x, y)
     else:
-        raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")
+        raise ValueError("'cell_shape' has to be a value from GRID_GEOMETRIES")
 
 def hex_neighbours_of(x, y):
     """ returns the list of coords of the neighbours of a cell on an hexagonal grid"""
@@ -76,19 +76,17 @@ def line2d(cell_shape, x1, y1, x2, y2):
     grid could be one of the GRIDTYPES values"""
     if not all(isinstance(c, int) for c in [x1, y1, x2, y2]):
         raise TypeError("x1, y1, x2, y2 have to be integers")
-    if (x1, y1) == (x2, y2):
-        return [(x1, y1)]
     if cell_shape == HEX:
-        return hex_2d_line(x1, y1, x2, y2)
+        return _brH(x1, y1, x2, y2)
     elif cell_shape == SQUARE: 
-        return squ_2d_line(x1, y1, x2, y2)
+        return _brC(x1, y1, x2, y2)
     else:
-        raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")
+        raise ValueError("'cell_shape' has to be a value from GRID_GEOMETRIES")
 
 def line3d(cell_shape, x1, y1, z1, x2, y2, z2):
     """returns a line from x1,y1,z1 to x2,y2,z2
     grid could be one of the GRIDTYPES values"""
-    if not all(isinstance(c, int) for c in [x1, y1, z1, x2, y2, z2]):
+    if not all(isinstance(c, int) for c in [z1, z2]):
         raise TypeError("x1, y1, z1, x2, y2, z2 have to be integers")
     hoLine = line2d(cell_shape, x1, y1, x2, y2)
     if z1 == z2:
@@ -97,48 +95,13 @@ def line3d(cell_shape, x1, y1, z1, x2, y2, z2):
         ligneZ = _brC(0, z1, (len(hoLine)-1), z2)
         return [(hoLine[d][0], hoLine[d][1], z) for d, z in ligneZ]
 
-def hex_2d_line(x1, y1, x2, y2):
-    """returns a line from x1,y1 to x2,y2 on an hexagonal grid
-    line is a list of coordinates"""
-    if (x1, y1) == (x2, y2):
-        return [(x1, y1)]
-    return _brH(x1, y1, x2, y2)
-
-def hex_3d_line(x1, y1, z1, x2, y2, z2):
-    """returns a line from x1,y1,z1 to x2,y2,z2 on an hexagonal grid
-    line is a list of coordinates"""
-    hoLine = hex_2d_line(x1, y1, x2, y2)
-    if z1 == z2:
-        return [(x, y, z1) for x, y in hoLine]
-    else:
-        zLine = _brC(0, z1, (len(hoLine)-1), z2)
-        dicZ = {d:[] for d, z in zLine}
-        for d, z in zLine:
-            dicZ[d].append(z)
-        return [(hoLine[d][0], hoLine[d][1], z) for d, liste_z in dicZ.items() for z in liste_z]
-
-def squ_2d_line(x1, y1, x2, y2):
-    """returns a line from x1,y1 to x2,y2 on an square grid
-    line is a list of coordinates
-    """
-    if (x1, y1) == (x2, y2):
-        return [(x1, y1)]
-    return _brC(x1, y1, x2, y2)
-    
-def squ_3d_line(x1, y1, z1, x2, y2, z2):
-    """returns a line from x1,y1,z1 to x2,y2,z2 on an square grid
-    line is a list of coordinates"""
-    hoLine = squ_2d_line(x1, y1, x2, y2)
-    if z1 == z2:
-        return [(x, y, z1) for x, y in hoLine]
-    else:
-        zLine = _brC(0, z1, (len(hoLine)-1), z2)
-        return [(hoLine[d][0], hoLine[d][1], z) for d, z in zLine]
-
 def _brC(x1, y1, x2, y2):
     """Line Bresenham algorithm for square grid"""
     result = []
-    
+
+    if (x1, y1) == (x2, y2):
+        return [(x1, y1)]
+
     # DIAGONAL SYMETRY
     V = ( abs(y2 - y1) > abs(x2 - x1) )
     if V: y1, x1, y2, x2 = x1, y1, x2, y2
@@ -169,6 +132,9 @@ def _brC(x1, y1, x2, y2):
     
 def _brH(x1, y1, x2, y2):
     """Line Bresenham algorithm for hexagonal grid"""
+    if (x1, y1) == (x2, y2):
+        return [(x1, y1)]
+    
     reversed_sym = (x1 > x2)
     if reversed_sym:
         x1, x2 = x2, x1
@@ -216,6 +182,7 @@ def _brH_h(x1, y1, x2, y2):
             result.append(pos)
             d += 0.5
         
+        # in case of error in the algorithm, we should avoid infinite loop:
         if pos[0] > x2:
             result = []
             break
@@ -260,6 +227,7 @@ def _brH_v(x1, y1, x2, y2):
             result.append(pos)
             offset -= 1.5
         
+        # in case of error in the algorithm, we should avoid infinite loop:
         if direction*pos[1] > direction*y2:
             result = []
             break
@@ -293,35 +261,48 @@ def triangle(cell_shape, xa, ya, xh, yh, iAngle):
     """Returns a list of (x, y) coordinates in a triangle
     A is the top of the triangle, H if the middle of the base
     """
+    if not all(isinstance(c, int) for c in [xa, ya, xh, yh]):
+        raise TypeError("xa, ya, xh, yh should be integers")
+    if not iAngle in ANGLES:
+        raise ValueError("iAngle should be one of the ANGLES values")   
+    
     if cell_shape == SQUARE:
-        return triangle_sq(xa, ya, xh, yh, iAngle)
+        return _triangle_sq(xa, ya, xh, yh, iAngle)
     elif cell_shape == HEX: 
-        return triangle_hex(xa, ya, xh, yh, iAngle)
+        return _triangle_hex(xa, ya, xh, yh, iAngle)
     else:
-        raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")
+        raise ValueError("'cell_shape' has to be a value from GRID_GEOMETRIES")
 
 def triangle3d(cell_shape, xa, ya, za, xh, yh, zh, iAngle):
     """Returns a list of (x, y, z) coordinates in a 3d-cone
     A is the top of the cone, H if the center of the base
+    
+    WARNING: result is a dictionnary of the form {(x, y): (-z, +z)}
+    
+    This is for performance reason, because on a 2d grid, you generrally don't need a complete list of z coordinates
+    as you don't want to display them: you just want to know if an altitude is inside a range.
+    
+    That could change in later version
     """
+    # TODO: review the result form
+    
+    if not all(isinstance(c, int) for c in [za, zh]):
+        raise TypeError("xa, ya, za, xh, yh, zh should be integers")
+        # a triangle2d will be built during algo, so other args will be checked later
+    
     if cell_shape == SQUARE:
-        return triangle_sq_3d(xa, ya, za, xh, yh, zh, iAngle)
+        return _triangle_sq_3d(xa, ya, za, xh, yh, zh, iAngle)
     elif cell_shape == HEX: 
-        return triangle_hex_3d(xa, ya, za, xh, yh, zh, iAngle)
+        return _triangle_hex_3d(xa, ya, za, xh, yh, zh, iAngle)
     else:
-        raise ValueError("'geometry' has to be a value from GRID_GEOMETRIES")
+        raise ValueError("'cell_shape' has to be a value from GRID_GEOMETRIES")    
+    
 
-def triangle_sq(xa, ya, xh, yh, iAngle):   
-    """Returns a list of (x, y) coordinates in a triangle
-    A is the top of the triangle, H if the middle of the base
-    (square grid)
+def _triangle_sq(xa, ya, xh, yh, iAngle):   
+    """ triangle algorithm on square grid
     """
-    if not all(isinstance(c, int) for c in [xa, ya, xh, yh]):
-        raise TypeError("xa, ya, xh, yh should be integers")
-    if not iAngle in ANGLES:
-        raise ValueError("iAngle should be one of the ANGLES values")
     if (xa, ya) == (xh, yh):
-        return [(xa, ya)]    
+        return [(xa, ya)] 
     
     result = []
     
@@ -344,7 +325,7 @@ def triangle_sq(xa, ya, xh, yh, iAngle):
     
     # base (lower slope)
     x1, y1, x2, y2 = min(lines, key=lambda x: (abs ( (x[3] - x[1]) / (x[2] - x[0]) ) if x[2] != x[0] else 10**10))
-    base = squ_2d_line(x1, y1, x2, y2)
+    base = line2d(SQUARE, x1, y1, x2, y2)
     y_base = y1
     lines.remove( (x1, y1, x2, y2) )
     
@@ -354,7 +335,7 @@ def triangle_sq(xa, ya, xh, yh, iAngle):
     for x1, y1, x2, y2 in lines:
         if y_top == None: 
             y_top = y2
-        hat.extend( squ_2d_line(x1, y1, x2, y2) )
+        hat.extend( line2d(SQUARE, x1, y1, x2, y2) )
     
     # sense (1 if top is under base, -1 if not)
     sense = 1 if y_top > y_base else -1
@@ -368,55 +349,9 @@ def triangle_sq(xa, ya, xh, yh, iAngle):
 
     return result
 
-def triangle_sq_3d(xa, ya, za, xh, yh, zh, iAngle):
-    """returns a dictionnary {coord: (-dh, +dh)}
-    coord keys are the cells in the triangle, (-dh, +dh) value is the vertical amplitude"""
-    
-    #TODO: review result form
-    
-    if not all(isinstance(c, int) for c in [xa, ya, xh, yh]):
-        raise TypeError("xa, ya, za, xh, yh have to be integers")
-    if not iAngle in ANGLES:
-        raise ValueError("iAngle should be one of the ANGLES values")
-    if (xa, ya) == (xh, yh):
-        return [(xa, ya)]  
-
-    result = {} 
-    
-    flat_triangle = triangle_sq(xa, ya, xh, yh, iAngle)
-    k = 1 / ( iAngle * sqrt(3) )
-
-    length = max( abs(xh - xa), abs(yh - ya) )
-
-    vertical_line = squ_2d_line(0, za, length, zh)
-    
-    #on cree un dictionnaire ou x est la cle, et ou la valeur est une liste de z
-    vertical_line_dict = {d:[] for d, z in vertical_line}
-    for d, z in vertical_line:
-        vertical_line_dict[d].append(z)
-        
-    #approximation: on met a jour la hauteur en fonction de la distance au centre
-    for x, y in flat_triangle:
-        distance = int( max( abs(x - xa), abs(y - ya) ) )
-        try:
-            z_list = vertical_line_dict[ distance ]
-        except KeyError:
-            distance = length
-            z_list = vertical_line_dict[ distance ]
-        dh = int( k * distance ) + 1 if distance > 0 else 0
-        result[ (x, y) ] = ( (min(z_list) - dh) , (max(z_list) + dh) ) 
-    return result
-
-
-def triangle_hex(xa, ya, xh, yh, iAngle):   
-    """Returns a list of (x, y) coordinates in a triangle
-    A is the top of the triangle, H if the middle of the base
-    (hexagonal grid)
+def _triangle_hex(xa, ya, xh, yh, iAngle):   
+    """  triangle algorithm on hexagonal grid
     """
-    if not all(isinstance(c, int) for c in [xa, ya, xh, yh]):
-        raise TypeError("xa, ya, xh, yh should be integers")
-    if not iAngle in [1, 2, 3]:
-        raise ValueError("iAngle should be one of the ANGLES values")
     if (xa, ya) == (xh, yh):
         return [(xa, ya)]    
     
@@ -449,7 +384,7 @@ def triangle_hex(xa, ya, xh, yh, iAngle):
     
     # base (lower slope)
     x1, y1, x2, y2 = min(segments, key=lambda x: (abs ( (x[3] - x[1]) / (x[2] - x[0]) ) if x[2] != x[0] else 10**10))
-    base = hex_2d_line(x1, y1, x2, y2)
+    base = line2d(HEX, x1, y1, x2, y2)
     y_base = y1
     segments.remove( (x1, y1, x2, y2) )
     
@@ -459,7 +394,7 @@ def triangle_hex(xa, ya, xh, yh, iAngle):
     for x1, y1, x2, y2 in segments:
         if y_sommet == None: 
             y_sommet = y2
-        chapeau.extend( hex_2d_line(x1, y1, x2, y2) )
+        chapeau.extend( line2d(HEX, x1, y1, x2, y2) )
     
     # sense (1 if top is under base, -1 if not)
     sens = 1 if y_sommet > y_base else -1
@@ -473,34 +408,59 @@ def triangle_hex(xa, ya, xh, yh, iAngle):
 
     return result
 
-def triangle_hex_3d(xa, ya, za, xh, yh, zh, iAngle):
-    """returns a dictionnary {coord: (-dh, +dh)}
-    coord (x,y) keys are the cells in the triangle, 
-    (-dh, +dh) value is the vertical amplitude"""
-    flat_trangle = triangle_hex(xa, ya, xh, yh, iAngle)
+
+def _triangle_sq_3d(xa, ya, za, xh, yh, zh, iAngle):
+    """ 3d triangle algorithm on square grid"""
+    result = []
     
-    #TODO: review result form
+    flat_triangle = triangle(SQUARE, xa, ya, xh, yh, iAngle)
+    k = 1 / ( iAngle * sqrt(3) )
+
+    length = max( abs(xh - xa), abs(yh - ya) )
+
+    vertical_line = line2d(SQUARE, 0, za, length, zh)
     
-    if (xa, ya) == (xh, yh):
-        return [(xa, ya)]   
+    # build a dict with X key and value is a list of Z values
+    vertical_line_dict = {d:[] for d, z in vertical_line}
+    for d, z in vertical_line:
+        vertical_line_dict[d].append(z)
+        
+    # this is approximative: height is update according to the manhattan distance to center
+    for x, y in flat_triangle:
+        distance = int( max( abs(x - xa), abs(y - ya) ) )
+        try:
+            z_list = vertical_line_dict[ distance ]
+        except KeyError:
+            distance = length
+            z_list = vertical_line_dict[ distance ]
+        dh = int( k * distance ) + 1 if distance > 0 else 0
+        result[ (x, y) ] = ( (min(z_list) - dh) , (max(z_list) + dh) ) 
+    return result
+
+def _triangle_hex_3d(xa, ya, za, xh, yh, zh, iAngle):
+    """ 3d triangle algorithm on hexagonal grid """
+    
+    flat_triangle = triangle(HEX, xa, ya, xh, yh, iAngle)
+
     result = {} 
     
     k = 1 / ( iAngle * sqrt(3) )
     
+    # use cubic coordinates
     xua, yua, zua = cv_off_cube(xa, ya)
     xuh, yuh, zuh = cv_off_cube(xh, yh)
     
     length = max( abs(xuh - xua), abs(yuh - yua), abs(zuh - zua) )
 
-    vertical_line = squ_2d_line(0, za, length, zh)
+    vertical_line = line2d(SQUARE, 0, za, length, zh)
     
-    #on cree un dictionnaire ou x est la cle, et ou la valeur est une liste de z
+    # build a dict with X key and value is a list of Z values
     vertical_line_dict = {d:[] for d, z in vertical_line}
     for d, z in vertical_line:
         vertical_line_dict[d].append(z)
         
-    #approximation: on met a jour la hauteur en fonction de la distance au centre
-    for x, y in flat_trangle:
+    # this is approximative: height is update according to the manhattan distance to center
+    for x, y in flat_triangle:
         xu, yu, zu = cv_off_cube(x, y)
         distance = int( max( abs(xu - xua), abs(yu - yua), abs(zu - zua) ) )
         try:
@@ -512,21 +472,45 @@ def triangle_hex_3d(xa, ya, za, xh, yh, zh, iAngle):
         result[ (x, y) ] = ( (min(z_list) - dh) , (max(z_list) + dh) ) 
     return result
 
+
 ## pivot
 
 def pivot(cell_shape, center, coordinates, rotations):
     """pivot 'rotations' times the coordinates (list of (x, y) tuples) 
     around the center coordinates (x,y)
     Rotation is counterclockwise"""
+    # check the args:
+    try:
+        x, y = center
+    except ValueError:
+        raise TypeError("'center' should be an tuple of (x, y) coordinates with x and y integers (given: {})".format(center))
+    if not isinstance(x, int) or not isinstance(y, int):
+        raise ValueError("'center' should be an tuple of (x, y) coordinates with x and y integers (given: {})".format(center))
+        
+    try:
+        for coord in coordinates:
+            try:
+                x, y = coord
+                if not isinstance(x, int) or not isinstance(y, int):
+                    raise ValueError() 
+            except ValueError:
+                raise ValueError("'coordinates' should be an list of (x, y) coordinates with x and y integers (given: {})".format(coordinates))
+    except TypeError:
+        raise TypeError("'coordinates' should be an list of (x, y) coordinates with x and y integers (given: {})".format(coordinates))
+    
+    if not isinstance(rotations, int):
+        raise TypeError("'rotations' should be an integer (given: {})".format(rotations))
+    
+    # call the method according to cells shape
     if cell_shape == SQUARE:
-        return squ_pivot(center, coordinates, rotations)
+        return _squ_pivot(center, coordinates, rotations)
     elif cell_shape == HEX: 
-        return hex_pivot(center, coordinates, rotations)
+        return _hex_pivot(center, coordinates, rotations)
     else:
         raise ValueError("'cell_shape' has to be a value from GRID_GEOMETRIES")
 
 
-def hex_pivot(center, coordinates, rotations):
+def _hex_pivot(center, coordinates, rotations):
     """pivot 'rotations' times the coordinates (list of (x, y) tuples) 
     around the center coordinates (x,y)
     On hexagonal grid, rotates of 60 degrees each time"""
@@ -548,7 +532,7 @@ def hex_pivot(center, coordinates, rotations):
         
     return result
 
-def squ_pivot(center, coordinates, rotations):
+def _squ_pivot(center, coordinates, rotations):
     """pivot 'rotations' times the coordinates (list of (x, y) tuples) 
     around the center coordinates (x,y)
     On square grid, rotates of 90 degrees each time"""
@@ -572,21 +556,18 @@ def squ_pivot(center, coordinates, rotations):
 ## cubic coordinates
 def cv_cube_off(xu, yu, zu):
     """convert cubic coordinates (xu, yu, zu) in standards coordinates (x, y) [offset]"""
-    if not all(isinstance(c, int) for c in [xu, yu, zu]):
-        raise TypeError("!err: xu, yu et zu doivent etre des entiers")
     y = int( xu + ( zu - (zu & 1) ) / 2 )
     x = zu
     return (x, y)        
 
 def cv_off_cube(x, y):
     """converts standards coordinates (x, y) [offset] in cubic coordinates (xu, yu, zu)"""
-    if not all(isinstance(c, int) for c in [x, y]):
-        raise TypeError("!err: x et y doivent etre des entiers")
     zu = x
     xu = int( y - ( x - (x & 1) ) / 2 )
     yu = int( -xu -zu )
     return (xu, yu, zu)    
 
+# unused
 def cube_round(x, y, z):
     """returns the nearest cell (in cubic coords)
     x, y, z can be floating numbers, no problem."""
@@ -600,10 +581,12 @@ def cube_round(x, y, z):
         rz = -rx-ry
     return (rx, ry, rz)
 
+# unused
 def hex_distance_cube(xa, ya, za, xb, yb, zb):
     """returns the manhattan distance between the two cells"""
     return max(abs(xa - xb), abs(ya - yb), abs(za - zb))
 
+# unused
 def distance_off(xa, ya, xb, yb):
     """ distance between A and B (offset coordinates)"""
     # 10 times quicker if no conversion...
