@@ -1,6 +1,34 @@
 '''
 Created on 17 déc. 2015
    Implement the A* algorithm
+   
+   Use the path function like that:
+   
+       path(my_grid, (xs, ys), (xt, yt), my_moving_cost_function)
+       >> [(xs, ys), (x1, y1), (x2, y2), ...(xt, yt)]
+       
+       where:
+        - my_grid is a Grid, HexGrid, or SquareGrid object
+        - (xs, ys) is the starting cell
+        - (xt, yt) is the targeted cell
+        - my_moving_cost_function is a pointer to your custom function. This function should be like:
+        
+        def my_moving_cost_function((x0, y0), (x1, y1)):
+            ...
+            return cost
+            
+        this function should return an INTEGER which represent the cost of a move from (x0, y0) to (x1, y1), 
+        where (x0, y0) and (x1, y1) are adjacent cells
+        
+        If cost is negative, move is impossible.
+        If move is strictly positive, it represents the difficulty to move from 0 to 1: 
+        the returned path will be the easiest from (xs, ys) to (xt, yt) 
+   
+    3D paths:
+        The path method takes account of the differents altitudes of the cells, but it is not designed to 
+        work for a flying mover. 
+        More clearly: the path will be on the ground: walking, climbing, but no flying for instance.
+
 @author: olivier.massot
 '''
 from pypog import geometry
@@ -49,18 +77,15 @@ class Node():
         x2, y2 = coord2
         return geometry.distance_off(x1, y1, x2, y2)
     
-def _default_moving_cost_function(x, y):
+def _default_moving_cost_function(from_coord, to_coord):
     return 1
-
 
 def path(grid, origin, target, moving_cost_function = None):
     """return the shorter path from origin to target on the Grid object
     the path is estimated following:
     - geometry of the grid
     - altitudes of the cells
-    - land use of the cells
-    - type of moves allowed on the cells
-    - moving abilities
+    - cost of the move returned by the 'moving_cost_function' 
     
     origin and target should be Cell objects
     """
@@ -79,13 +104,12 @@ def path(grid, origin, target, moving_cost_function = None):
     
     while position.coord != target:
 
-        # we could avoid the re-computing
+        # we maybe could avoid the re-computing by storing the neighbours coordinates?
         neighbours = grid.cell(position.coord).neighbours
         
         for coord in [coord for coord in neighbours if not coord in nodes.keys()]:
 
-                x, y = coord
-                cost = moving_cost_function(x, y)
+                cost = moving_cost_function(position.coord, coord)
                 if cost < 0:
                     continue
                 
