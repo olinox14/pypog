@@ -14,18 +14,25 @@ Created on 5 dec. 2016
         
 @author: olinox
 '''
-from abc import ABCMeta
 
-from pypog import geometry
+from pypog import geometry, Grid
+
+class NotStartedException(Exception): 
+    pass
+
+class AlreadyStartedException(Exception): 
+    pass
+
 
 class BasePencil(object):
     """Base class of all pencils
-    This is an abstract class: override it!"""
-    __metaclass__ = ABCMeta
+    This class does not  paint anything: override it!"""
     
     def __init__(self, grid):
         
         # do we really need the grid ref? cell_shape could be enough?
+        if not isinstance(grid, Grid.Grid):
+            raise TypeError("'grid' should be a Grid object (given: {})".format(grid))
         self._grid = grid
         
         self._origin = None
@@ -97,7 +104,7 @@ class BasePencil(object):
         """start a new painting
         (x0, y0) is the origin of the painting, and will not be modified."""
         if len(self._selection) > 0:
-            raise Exception("the pencil has already been started")
+            raise AlreadyStartedException("the pencil has already been started")
         self._origin = (x0, y0)
         self.update(x0, y0)
 
@@ -107,7 +114,7 @@ class BasePencil(object):
         if not all(isinstance(var, int) for var in (x, y)):
             raise TypeError("x, y has to be an integers (given: {})".format((x, y)))
         if self._origin == None:
-            raise Exception("Pencil has to be started before any update: use 'start' method")
+            raise NotStartedException("Pencil has to be started before any update: use 'start' method")
         self._position = (x, y)
         self._update()
         
@@ -126,8 +133,9 @@ class LinePencil(BasePencil):
         line = set( geometry.line2d(self._grid.cell_shape, x0, y0, x, y) )
         
         # apply size with geometry.zone
-        for x, y in line:
-            result |= set( geometry.zone(self._grid.cell_shape, x, y, self.size) )
+        if self._grid.size >= 1: 
+            for x, y in line:
+                result |= set( geometry.zone(self._grid.cell_shape, x, y, self.size - 1) )
         
         self._added = result - self._selection
         self._removed = self._selection - result
@@ -205,7 +213,7 @@ class PaintPotPencil(BasePencil):
         self._selection = current_selection
         
         
-def RectanglePencil(BasePencil):
+class RectanglePencil(BasePencil):
     """ RectanglePencil draw a plain rectangle with origin being the 
     top left corner, and position the bottom right corner"""
     def __init__(self, *args):
@@ -221,7 +229,7 @@ def RectanglePencil(BasePencil):
         self._removed = self._selection - new_selection
         self._selection = new_selection
         
-def HollowRectanglePencil(BasePencil):
+class HollowRectanglePencil(BasePencil):
     """ HollowRectanglePencil draw an hollow rectangle with origin being the 
     top left corner, and position the bottom right corner"""
     def __init__(self, *args):

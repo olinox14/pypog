@@ -3,20 +3,22 @@ Created on 26 nov. 2016
 
 @author: olinox
 '''
+from PyQt5.QtCore import QPointF, QMimeData
+from PyQt5.QtWidgets import QMainWindow, \
+    QApplication, QGraphicsScene, QGraphicsView, QMessageBox
+import ipdb  # until I find another way to print traceback with pyqt5
+
+from gridviewer.GridViewerCell import GridViewerCell
+from gridviewer.main import Ui_window
+from pypog import geometry
+
 
 if __name__ == "__main__":
     import os, sys
     pypog_path = (os.path.abspath("..\\..\\"))
     sys.path.append(pypog_path)
     
-from PyQt5.QtCore import QPointF, QMimeData
-from PyQt5.QtWidgets import QMainWindow, \
-    QApplication, QGraphicsScene, QGraphicsView, QMessageBox
-import ipdb  # until I find another way to print traceback with pyqt5
 
-from pypog import geometry
-from tests.gridviewer.GridViewerCell import GridViewerCell
-from tests.gridviewer.main import Ui_window
 
 
 class GridViewer(QMainWindow):
@@ -98,12 +100,10 @@ class GridViewer(QMainWindow):
         for x, y in new_selection:
             self.cells[(x, y)].select()
             
-            
     def to_clipboard(self):
         data = QMimeData()
         data.setText(self.ui.txt_coords.toPlainText())
         app.clipboard().setMimeData(data)
-
 
     def update_cell_labels(self):
         for cell in self.cells.values():
