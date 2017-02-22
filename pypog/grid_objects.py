@@ -88,7 +88,7 @@ class Grid(object):
         return (x > 0 and x <= self._width and y > 0 and y <= self._height)
 
     def line(self, x1, y1, x2, y2):
-        return geometry.line2d(self.cell_shape, x1, y1, x2, y2)
+        return geometry.line(self.cell_shape, x1, y1, x2, y2)
 
     def line3d(self, x1, y1, z1, x2, y2, z2):
         return geometry.line3d(self.cell_shape, x1, y1, z1, x2, y2, z2)

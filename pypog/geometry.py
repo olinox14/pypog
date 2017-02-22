@@ -14,22 +14,19 @@
     * triangle3d function return the list of the cells in a cone from its apex (xa, ya, za) to its base (xh, yh, zh)
     * pivot function return a list of coordinates after a counterclockwise rotation of a given list of coordinates, around a given center
 
-
     ** By Cro-Ki l@b, 2017 **
 '''
 from math import sqrt
 
-CELL_SHAPES = (4, 6)
 
+# ## Cell shapes
 SQUARE = 4
 FLAT_HEX = 61
 TOP_HEX = 62
 CELL_SHAPES = (SQUARE, FLAT_HEX, TOP_HEX)
 
-ANGLES = (1, 2, 3)
-
-class UnknownCellShape(ValueError): pass
-
+class UnknownCellShape(ValueError):
+    msg = "'cell_shape' has to be a value from CELL_SHAPES"
 
 
 # ## NEIGHBOURS
@@ -37,20 +34,22 @@ class UnknownCellShape(ValueError): pass
 def neighbours(cell_shape, x, y):
     """ returns the list of coords of the neighbours of a cell"""
     if cell_shape == SQUARE:
-        return squ_neighbours(x, y)
+        return squ2_neighbours(x, y)
     elif cell_shape == FLAT_HEX:
-        return fhex_neighbours(x, y)
+        return fhex2_neighbours(x, y)
+    elif cell_shape == TOP_HEX:
+        raise NotImplementedError()
     else:
-        raise ValueError("'cell_shape' has to be a value from CELL_SHAPES")
+        raise UnknownCellShape()
 
-def fhex_neighbours(x, y):
+def fhex2_neighbours(x, y):
     """ returns the list of coords of the neighbours of a cell on an hexagonal grid"""
     if x % 2 == 0:
         return [(x, y - 1), (x + 1, y - 1), (x + 1, y), (x, y + 1), (x - 1, y), (x - 1, y - 1)]
     else:
         return [(x, y - 1), (x + 1, y), (x + 1, y + 1), (x, y + 1), (x - 1, y + 1), (x - 1, y)]
 
-def squ_neighbours(x, y):
+def squ2_neighbours(x, y):
     """ returns the list of coords of the neighbours of a cell on an square grid"""
     return [(x - 1, y - 1), (x, y - 1), (x + 1, y - 1), \
             (x - 1, y), (x + 1, y)  , \
@@ -75,24 +74,26 @@ def zone(cell_shape, x0, y0, radius):
 
 # ## LINES (implementations of bresenham algorithm)
 
-def line2d(cell_shape, x1, y1, x2, y2):
+def line(cell_shape, x1, y1, x2, y2):
     """returns a line from x1,y1 to x2,y2
     grid could be one of the GRIDTYPES values"""
     if not all(isinstance(c, int) for c in [x1, y1, x2, y2]):
         raise TypeError("x1, y1, x2, y2 have to be integers")
     if cell_shape == FLAT_HEX:
-        return fhex_line(x1, y1, x2, y2)
+        return fhex2_line(x1, y1, x2, y2)
     elif cell_shape == SQUARE:
         return squ2_line(x1, y1, x2, y2)
+    elif cell_shape == TOP_HEX:
+        raise NotImplementedError()
     else:
-        raise ValueError("'cell_shape' has to be a value from CELL_SHAPES")
+        raise UnknownCellShape()
 
 def line3d(cell_shape, x1, y1, z1, x2, y2, z2):
     """returns a line from x1,y1,z1 to x2,y2,z2
     grid could be one of the GRIDTYPES values"""
     if not all(isinstance(c, int) for c in [z1, z2]):
         raise TypeError("x1, y1, z1, x2, y2, z2 have to be integers")
-    hoLine = line2d(cell_shape, x1, y1, x2, y2)
+    hoLine = line(cell_shape, x1, y1, x2, y2)
     if z1 == z2:
         return [(x, y, z1) for x, y in hoLine]
     else:
@@ -134,7 +135,7 @@ def squ2_line(x1, y1, x2, y2):
         result.reverse()
     return result
 
-def fhex_line(x1, y1, x2, y2):
+def fhex2_line(x1, y1, x2, y2):
     """Line Bresenham algorithm for hexagonal grid"""
     if (x1, y1) == (x2, y2):
         return [(x1, y1)]
@@ -250,6 +251,8 @@ def hollow_rectangle(x1, y1, x2, y2):
 
 # ## TRIANGLES
 
+ANGLES = (1, 2, 3)
+
 def triangle(cell_shape, xa, ya, xh, yh, iAngle):
     """Returns a list of (x, y) coordinates in a triangle
     A is the top of the triangle, H if the middle of the base
@@ -263,8 +266,10 @@ def triangle(cell_shape, xa, ya, xh, yh, iAngle):
         return squ2_triangle(xa, ya, xh, yh, iAngle)
     elif cell_shape == FLAT_HEX:
         return fhex2_triangle(xa, ya, xh, yh, iAngle)
+    elif cell_shape == TOP_HEX:
+        raise NotImplementedError()
     else:
-        raise ValueError("'cell_shape' has to be a value from CELL_SHAPES")
+        raise UnknownCellShape()
 
 def triangle3d(cell_shape, xa, ya, za, xh, yh, zh, iAngle):
     """Returns a list of (x, y, z) coordinates in a 3d-cone
@@ -287,8 +292,10 @@ def triangle3d(cell_shape, xa, ya, za, xh, yh, zh, iAngle):
         return squ3_triangle(xa, ya, za, xh, yh, zh, iAngle)
     elif cell_shape == FLAT_HEX:
         return fhex3_triangle(xa, ya, za, xh, yh, zh, iAngle)
+    elif cell_shape == TOP_HEX:
+        raise NotImplementedError()
     else:
-        raise ValueError("'cell_shape' has to be a value from CELL_SHAPES")
+        raise UnknownCellShape()
 
 
 def squ2_triangle(xa, ya, xh, yh, iAngle):
@@ -318,7 +325,7 @@ def squ2_triangle(xa, ya, xh, yh, iAngle):
 
     # base (lower slope)
     x1, y1, x2, y2 = min(lines, key=lambda x: (abs ((x[3] - x[1]) / (x[2] - x[0])) if x[2] != x[0] else 10 ** 10))
-    base = line2d(SQUARE, x1, y1, x2, y2)
+    base = line(SQUARE, x1, y1, x2, y2)
     y_base = y1
     lines.remove((x1, y1, x2, y2))
 
@@ -328,7 +335,7 @@ def squ2_triangle(xa, ya, xh, yh, iAngle):
     for x1, y1, x2, y2 in lines:
         if y_top == None:
             y_top = y2
-        hat.extend(line2d(SQUARE, x1, y1, x2, y2))
+        hat.extend(line(SQUARE, x1, y1, x2, y2))
 
     # sense (1 if top is under base, -1 if not)
     sense = 1 if y_top > y_base else -1
@@ -377,7 +384,7 @@ def fhex2_triangle(xa, ya, xh, yh, iAngle):
 
     # base (lower slope)
     x1, y1, x2, y2 = min(segments, key=lambda x: (abs ((x[3] - x[1]) / (x[2] - x[0])) if x[2] != x[0] else 10 ** 10))
-    base = line2d(FLAT_HEX, x1, y1, x2, y2)
+    base = line(FLAT_HEX, x1, y1, x2, y2)
     y_base = y1
     segments.remove((x1, y1, x2, y2))
 
@@ -387,7 +394,7 @@ def fhex2_triangle(xa, ya, xh, yh, iAngle):
     for x1, y1, x2, y2 in segments:
         if y_sommet == None:
             y_sommet = y2
-        chapeau.extend(line2d(FLAT_HEX, x1, y1, x2, y2))
+        chapeau.extend(line(FLAT_HEX, x1, y1, x2, y2))
 
     # sense (1 if top is under base, -1 if not)
     sens = 1 if y_sommet > y_base else -1
@@ -411,7 +418,7 @@ def squ3_triangle(xa, ya, za, xh, yh, zh, iAngle):
 
     length = max(abs(xh - xa), abs(yh - ya))
 
-    vertical_line = line2d(SQUARE, 0, za, length, zh)
+    vertical_line = line(SQUARE, 0, za, length, zh)
 
     # build a dict with X key and value is a list of Z values
     vertical_line_dict = {d:[] for d, z in vertical_line}
@@ -445,7 +452,7 @@ def fhex3_triangle(xa, ya, za, xh, yh, zh, iAngle):
 
     length = max(abs(xuh - xua), abs(yuh - yua), abs(zuh - zua))
 
-    vertical_line = line2d(SQUARE, 0, za, length, zh)
+    vertical_line = line(SQUARE, 0, za, length, zh)
 
     # build a dict with X key and value is a list of Z values
     vertical_line_dict = {d:[] for d, z in vertical_line}
@@ -496,14 +503,16 @@ def pivot(cell_shape, center, coordinates, rotations):
 
     # call the method according to cells shape
     if cell_shape == SQUARE:
-        return squ_pivot(center, coordinates, rotations)
+        return squ2_pivot(center, coordinates, rotations)
     elif cell_shape == FLAT_HEX:
-        return fhex_pivot(center, coordinates, rotations)
+        return fhex2_pivot(center, coordinates, rotations)
+    elif cell_shape == TOP_HEX:
+        raise NotImplementedError()
     else:
-        raise ValueError("'cell_shape' has to be a value from CELL_SHAPES")
+        raise UnknownCellShape()
 
 
-def fhex_pivot(center, coordinates, rotations):
+def fhex2_pivot(center, coordinates, rotations):
     """pivot 'rotations' times the coordinates (list of (x, y) tuples)
     around the center coordinates (x,y)
     On hexagonal grid, rotates of 60 degrees each time"""
@@ -523,7 +532,7 @@ def fhex_pivot(center, coordinates, rotations):
         result.append((xr, yr))
     return result
 
-def squ_pivot(center, coordinates, rotations):
+def squ2_pivot(center, coordinates, rotations):
     """pivot 'rotations' times the coordinates (list of (x, y) tuples)
     around the center coordinates (x,y)
     On square grid, rotates of 90 degrees each time"""

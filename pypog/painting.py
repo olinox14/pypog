@@ -129,7 +129,7 @@ class LinePencil(BasePencil):
         # use a set because of performance (should we generalize the use of sets for coordinates lists?)
         result = set([])
 
-        line = set(geometry.line2d(self._grid.cell_shape, x0, y0, x, y))
+        line = set(geometry.line(self._grid.cell_shape, x0, y0, x, y))
 
         # apply size with geometry.zone
         if self._grid.size >= 1:
