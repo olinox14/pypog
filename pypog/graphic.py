@@ -1,35 +1,35 @@
 '''
-Created on 5 dec. 2016
+    Graphical functions
 
-@author: olinox
+    ** By Cro-Ki l@b, 2017 **
 '''
-
 from pypog import geometry
 
-
-def polygon(shape, x, y, scale = 120):
-    if shape == geometry.HEX:
-        
-        if 1 == (x % 2): 
-            y += 0.5
-            
-        return [
-                   ( ((x*0.866)+0.2886) * scale ,   y * scale), \
-                   ( ((x*0.866)+0.866) * scale  ,   y * scale), \
-                   ( ((x*0.866)+1.1547) * scale ,   (y+0.5) * scale), \
-                   ( ((x*0.866)+0.866) * scale  ,   (y+1) * scale), \
-                   ( ((x*0.866)+0.2886) * scale ,   (y+1) * scale),  \
-                   ( (x*0.866) * scale          ,   (y+0.5) * scale) 
-                ]
-
+def g_cell(shape, *args):
+    if shape == geometry.FLAT_HEX:
+        return g_flathex(*args)
     elif shape == geometry.SQUARE :
-        
-        return  [ 
-                    (x * scale,      y * scale), \
-                    ((x+1) * scale,  y * scale), \
-                    ((x+1) * scale,  (y+1) * scale), \
-                    (x * scale,       (y+1) * scale) 
-                ]   
-        
+        return g_square(*args)
     else:
-        raise ValueError("'shape' has to be a value from GEOMETRIES")
+        raise geometry.UnknownCellShape()
+
+def g_flathex(x, y, scale=120):
+    if x % 2 != 0:
+        y += 0.5
+    return [
+               (((x * 0.866) + 0.2886) * scale , y * scale), \
+               (((x * 0.866) + 0.866) * scale  , y * scale), \
+               (((x * 0.866) + 1.1547) * scale , (y + 0.5) * scale), \
+               (((x * 0.866) + 0.866) * scale  , (y + 1) * scale), \
+               (((x * 0.866) + 0.2886) * scale , (y + 1) * scale), \
+               ((x * 0.866) * scale          , (y + 0.5) * scale)
+            ]
+
+def g_square(x, y, scale=120):
+    return  [
+                (x * scale, y * scale), \
+                ((x + 1) * scale, y * scale), \
+                ((x + 1) * scale, (y + 1) * scale), \
+                (x * scale, (y + 1) * scale)
+            ]
+
