@@ -80,7 +80,7 @@
         <item>
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>Update Grid</string>
+           <string>GRID</string>
           </property>
          </widget>
         </item>
@@ -99,7 +99,7 @@
            </size>
           </property>
           <property name="text">
-           <string>Hexagonal grid</string>
+           <string>Flat Hex</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -121,7 +121,7 @@
            </size>
           </property>
           <property name="text">
-           <string>Square grid</string>
+           <string>Square</string>
           </property>
          </widget>
         </item>
@@ -276,38 +276,6 @@
          <number>0</number>
         </property>
         <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QToolButton" name="btn_updateSelection">
-          <property name="minimumSize">
-           <size>
-            <width>132</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>132</width>
-            <height>1000</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Update selection</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QToolButton" name="btn_toClipboard">
           <property name="minimumSize">
            <size>
@@ -326,6 +294,38 @@
           </property>
          </widget>
         </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QToolButton" name="btn_updateSelection">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>1000</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&gt;&gt;</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>
@@ -334,6 +334,32 @@
          <size>
           <width>183</width>
           <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Run:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="txt_stdin"/>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="txt_stdout">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>120</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>120</height>
          </size>
         </property>
        </widget>

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'main.ui'
+# Form implementation generated from reading ui file 'qt_viewer.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.7.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -108,23 +108,34 @@ class Ui_window(object):
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem1)
-        self.btn_updateSelection = QtWidgets.QToolButton(self.centralwidget)
-        self.btn_updateSelection.setMinimumSize(QtCore.QSize(132, 35))
-        self.btn_updateSelection.setMaximumSize(QtCore.QSize(132, 1000))
-        self.btn_updateSelection.setObjectName("btn_updateSelection")
-        self.horizontalLayout_3.addWidget(self.btn_updateSelection)
         self.btn_toClipboard = QtWidgets.QToolButton(self.centralwidget)
         self.btn_toClipboard.setMinimumSize(QtCore.QSize(84, 35))
         self.btn_toClipboard.setMaximumSize(QtCore.QSize(84, 1000))
         self.btn_toClipboard.setObjectName("btn_toClipboard")
         self.horizontalLayout_3.addWidget(self.btn_toClipboard)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem1)
+        self.btn_updateSelection = QtWidgets.QToolButton(self.centralwidget)
+        self.btn_updateSelection.setMinimumSize(QtCore.QSize(50, 35))
+        self.btn_updateSelection.setMaximumSize(QtCore.QSize(50, 1000))
+        self.btn_updateSelection.setObjectName("btn_updateSelection")
+        self.horizontalLayout_3.addWidget(self.btn_updateSelection)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
         self.txt_coords = QtWidgets.QTextEdit(self.centralwidget)
         self.txt_coords.setMinimumSize(QtCore.QSize(183, 0))
         self.txt_coords.setObjectName("txt_coords")
         self.verticalLayout_2.addWidget(self.txt_coords)
+        self.label_4 = QtWidgets.QLabel(self.centralwidget)
+        self.label_4.setObjectName("label_4")
+        self.verticalLayout_2.addWidget(self.label_4)
+        self.txt_stdin = QtWidgets.QLineEdit(self.centralwidget)
+        self.txt_stdin.setObjectName("txt_stdin")
+        self.verticalLayout_2.addWidget(self.txt_stdin)
+        self.txt_stdout = QtWidgets.QTextEdit(self.centralwidget)
+        self.txt_stdout.setMinimumSize(QtCore.QSize(0, 80))
+        self.txt_stdout.setMaximumSize(QtCore.QSize(16777215, 120))
+        self.txt_stdout.setObjectName("txt_stdout")
+        self.verticalLayout_2.addWidget(self.txt_stdout)
         self.horizontalLayout.addLayout(self.verticalLayout_2)
         self.horizontalLayout.setStretch(0, 2)
         window.setCentralWidget(self.centralwidget)
@@ -141,16 +152,17 @@ class Ui_window(object):
         _translate = QtCore.QCoreApplication.translate
         window.setWindowTitle(_translate("window", "GridViewer"))
         self.lbl_title.setText(_translate("window", "Grid Viewer"))
-        self.label.setText(_translate("window", "Update Grid"))
-        self.opt_hex.setText(_translate("window", "Hexagonal grid"))
-        self.opt_square.setText(_translate("window", "Square grid"))
+        self.label.setText(_translate("window", "GRID"))
+        self.opt_hex.setText(_translate("window", "Flat Hex"))
+        self.opt_square.setText(_translate("window", "Square"))
         self.label_2.setText(_translate("window", "X"))
         self.btn_make.setText(_translate("window", ">>"))
         self.label_3.setText(_translate("window", "Zoom"))
         self.btn_zoom_plus.setText(_translate("window", "+"))
         self.btn_zoom_minus.setText(_translate("window", "-"))
         self.chk_displayCoords.setText(_translate("window", "Display coordinates"))
-        self.btn_updateSelection.setText(_translate("window", "Update selection"))
         self.btn_toClipboard.setText(_translate("window", "To clipboard"))
+        self.btn_updateSelection.setText(_translate("window", ">>"))
+        self.label_4.setText(_translate("window", "Run:"))
         self.actionQuitter.setText(_translate("window", "Quitter"))
 

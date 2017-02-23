@@ -2,6 +2,13 @@
 
     ** By Cro-Ki l@b, 2017 **
 '''
+if __name__ == "__main__":
+    import os, sys
+    pypog_path = (os.path.abspath(".."))
+    sys.path.append(pypog_path)
+
+import time
+
 from PyQt5.QtCore import QPointF, QMimeData
 from PyQt5.QtWidgets import QMainWindow, \
     QApplication, QGraphicsScene, QGraphicsView, QMessageBox
@@ -11,11 +18,6 @@ from gridviewer.GridViewerCell import GridViewerCell
 from gridviewer.viewer import Ui_window
 from pypog import geometry
 
-
-if __name__ == "__main__":
-    import os, sys
-    pypog_path = (os.path.abspath("..\\..\\"))
-    sys.path.append(pypog_path)
 
 class GridViewer(QMainWindow):
 
@@ -42,6 +44,7 @@ class GridViewer(QMainWindow):
         self.ui.btn_toClipboard.clicked.connect(self.to_clipboard)
         self.ui.btn_zoom_plus.clicked.connect(self.zoom_plus)
         self.ui.btn_zoom_minus.clicked.connect(self.zoom_minus)
+        self.ui.txt_stdin.returnPressed.connect(self.run_stdin)
 
         self.ui.chk_displayCoords.toggled.connect(self.update_cell_labels)
 
@@ -111,7 +114,16 @@ class GridViewer(QMainWindow):
     def zoom_minus(self):
         self.ui.view.scale(0.9, 0.9)
 
-
+    def run_stdin(self):
+        stdin = self.ui.txt_stdin.text()
+        try:
+            t0 = time.time()
+            result = eval(stdin)
+            self.ui.txt_coords.setText(str(result))
+            self.update_selected_cells()
+            self.ui.txt_stdout.setText("{} ms.".format(1000 * (time.time() - t0)))
+        except Exception as e:
+            self.ui.txt_stdout.setText("{} : {}".format(e.__class__name__, e))
 
 if __name__ == "__main__":
 
