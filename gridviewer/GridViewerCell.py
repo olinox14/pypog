@@ -19,7 +19,7 @@ class GridViewerCell(QGraphicsPolygonItem):
         self.y = y
         self.selected = False
 
-    def generate(self, shape, scale=120):
+    def generate(self, shape, scale=120, show_label=False):
 
         points = [QPointF(xp, yp) for xp, yp in graphic.g_cell(shape, self.x, self.y, scale)]
         qpolygon = QPolygonF(points)
@@ -33,6 +33,8 @@ class GridViewerCell(QGraphicsPolygonItem):
         self.setFlag(QGraphicsItem.ItemIsFocusable)
 
         self.label = QGraphicsSimpleTextItem("{}-{}".format(self.x, self.y), parent=self)
+        self.label.setVisible(show_label)
+
         k = 0
         if (self.x % 2) != 0:
             k = 0.5
