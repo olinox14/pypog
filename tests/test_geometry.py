@@ -8,7 +8,6 @@ import unittest
 
 from pypog import geometry
 
-
 class Test(unittest.TestCase):
 
     # # neighbours
