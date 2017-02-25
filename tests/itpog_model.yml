@@ -1,5 +1,5 @@
 imports:
-- from pypog import geometry
+  geometry: pypog.geometry
   
 jobs:
   geometry.fhex2_line:
