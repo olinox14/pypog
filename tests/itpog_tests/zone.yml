@@ -1,0 +1,18 @@
+imports:
+  geometry: pypog.geometry
+  
+jobs:
+  geometry.zone:
+    infos: {'cell_shape': 61}
+    args:
+    - [61, 0, 0, 1]
+    - [61, 0, 0, 10]
+    - [61, 0, 0, 100]
+    validator:
+  geometry.zone:
+    infos: {'cell_shape': 4}
+    args:
+    - [4, 0, 0, 1]
+    - [4, 0, 0, 10]
+    - [4, 0, 0, 100]
+    validator:

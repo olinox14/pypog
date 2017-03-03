@@ -1,0 +1,18 @@
+imports:
+  geometry: pypog.geometry
+  
+jobs:
+  geometry.fhex2_triangle:
+    infos: {'cell_shape': 61}
+    args:
+    - [0, 0, 1, 1, 2]
+    - [0, 0, 10, 10, 2]
+    - [0, 0, 100, 100, 2]
+    validator:
+  geometry.squ2_triangle:
+    infos: {'cell_shape': 4}
+    args:
+    - [0, 0, 1, 1, 2]
+    - [0, 0, 10, 10, 2]
+    - [0, 0, 100, 100, 2]
+    validator:

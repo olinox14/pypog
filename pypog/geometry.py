@@ -14,10 +14,14 @@
     * triangle3d function return the list of the cells in a cone from its apex (xa, ya, za) to its base (xh, yh, zh)
     * pivot function return a list of coordinates after a counterclockwise rotation of a given list of coordinates, around a given center
 
+    Performances are given for dimensions of 1, 10, 100
+    ex: line(0,0,1,1), line(0,0,10,10), line(0,0,100,100) will give (x ms. / y ms. / z ms).
+
+
+
     ** By Cro-Ki l@b, 2017 **
 '''
 from math import sqrt
-
 
 # ## Cell shapes
 SQUARE = 4
@@ -27,7 +31,6 @@ CELL_SHAPES = (SQUARE, FLAT_HEX, TOP_HEX)
 
 class UnknownCellShape(ValueError):
     msg = "'cell_shape' has to be a value from CELL_SHAPES"
-
 
 # ## NEIGHBOURS
 
@@ -43,7 +46,8 @@ def neighbours(cell_shape, x, y):
         raise UnknownCellShape()
 
 def fhex2_neighbours(x, y):
-    """ returns the list of coords of the neighbours of a cell on an hexagonal grid"""
+    """ returns the list of coords of the neighbours of a cell on an hexagonal grid """
+    # (0.0148 / - / -)
     if x % 2 == 0:
         return [(x, y - 1), (x + 1, y - 1), (x + 1, y), (x, y + 1), (x - 1, y), (x - 1, y - 1)]
     else:
@@ -51,6 +55,7 @@ def fhex2_neighbours(x, y):
 
 def squ2_neighbours(x, y):
     """ returns the list of coords of the neighbours of a cell on an square grid"""
+    # (0.0152 / - / -)
     return [(x - 1, y - 1), (x, y - 1), (x + 1, y - 1), \
             (x - 1, y), (x + 1, y)  , \
             (x - 1, y + 1), (x, y + 1), (x + 1, y + 1)]
@@ -58,6 +63,7 @@ def squ2_neighbours(x, y):
 def zone(cell_shape, x0, y0, radius):
     """ returns the list of the coordinates of the cells in the zone around (x0, y0)
     """
+    # 0.0311 / 17.2039 / ?
     if not all(isinstance(c, int) for c in [x0, y0, radius]):
         raise TypeError("x0, y0, radius have to be integers")
     if not radius >= 0:
@@ -102,6 +108,7 @@ def line3d(cell_shape, x1, y1, z1, x2, y2, z2):
 
 def squ2_line(x1, y1, x2, y2):
     """Line Bresenham algorithm for square grid"""
+    # 0.0195 / 0.0222 / 0.0517
     result = []
 
     if (x1, y1) == (x2, y2):
@@ -137,6 +144,8 @@ def squ2_line(x1, y1, x2, y2):
 
 def fhex2_line(x1, y1, x2, y2):
     """Line Bresenham algorithm for hexagonal grid"""
+    # 0.0220 / 0.0388 / 0.1330
+
     if (x1, y1) == (x2, y2):
         return [(x1, y1)]
 
@@ -236,6 +245,8 @@ def fhex2_line(x1, y1, x2, y2):
 
 def rectangle(x1, y1, x2, y2):
     """return a list of cells in a rectangle between (X1, Y1), (X2, Y2)"""
+    # squ: 0.0226 / 0.0361 / 1.0091
+    # fhex: ? / ? / ?
     if not all(isinstance(val, int) for val in [x1, y1, x2, y2]):
         raise TypeError("x1, y1, x2, y2 should be integers")
     xa, ya, xb, yb = min([x1, x2]), min([y1, y2]), max([x1, x2]), max([y1, y2])
@@ -243,6 +254,8 @@ def rectangle(x1, y1, x2, y2):
 
 def hollow_rectangle(x1, y1, x2, y2):
     """return a list of cells composing the sides of the rectangle between (X1, Y1), (X2, Y2)"""
+    # squ: 0.0254 / 0.0590 / 2.6669
+    # fhex: ? / ? / ?
     if not all(isinstance(val, int) for val in [x1, y1, x2, y2]):
         raise TypeError("x1, y1, x2, y2 should be integers")
     return [(x, y) for x, y in rectangle(x1, y1, x2, y2)
@@ -301,6 +314,8 @@ def triangle3d(cell_shape, xa, ya, za, xh, yh, zh, iAngle):
 def squ2_triangle(xa, ya, xh, yh, iAngle):
     """ triangle algorithm on square grid
     """
+    # 0.0393 / 0.1254 / 40.8067
+
     if (xa, ya) == (xh, yh):
         return [(xa, ya)]
 
@@ -352,6 +367,8 @@ def squ2_triangle(xa, ya, xh, yh, iAngle):
 def fhex2_triangle(xa, ya, xh, yh, iAngle):
     """  triangle algorithm on hexagonal grid
     """
+    # 0.0534 / 0.2351 / 111.8207
+
     if (xa, ya) == (xh, yh):
         return [(xa, ya)]
 
@@ -479,6 +496,7 @@ def pivot(cell_shape, center, coordinates, rotations):
     """pivot 'rotations' times the coordinates (list of (x, y) tuples)
     around the center coordinates (x,y)
     Rotation is counterclockwise"""
+
     # check the args:
     try:
         x, y = center
@@ -511,11 +529,12 @@ def pivot(cell_shape, center, coordinates, rotations):
     else:
         raise UnknownCellShape()
 
-
 def fhex2_pivot(center, coordinates, rotations):
     """pivot 'rotations' times the coordinates (list of (x, y) tuples)
     around the center coordinates (x,y)
     On hexagonal grid, rotates of 60 degrees each time"""
+    # ? / ? / ?
+
     if coordinates == [center] or rotations % 6 == 0:
         return coordinates
     x0, y0 = center
@@ -536,6 +555,8 @@ def squ2_pivot(center, coordinates, rotations):
     """pivot 'rotations' times the coordinates (list of (x, y) tuples)
     around the center coordinates (x,y)
     On square grid, rotates of 90 degrees each time"""
+    # ? / ? / ?
+
     if coordinates == [center] or rotations % 4 == 0:
         return coordinates
     x0, y0 = center
