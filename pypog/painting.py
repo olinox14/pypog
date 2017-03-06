@@ -13,8 +13,8 @@
 
     ** By Cro-Ki l@b, 2017 **
 '''
+from pypog import gridlib
 
-from pypog import geometry, grid_objects
 
 class NotStartedException(Exception):
     pass
@@ -30,7 +30,7 @@ class BasePencil(object):
     def __init__(self, grid):
 
         # do we really need the grid ref? cell_shape could be enough?
-        if not isinstance(grid, grid_objects.Grid):
+        if not isinstance(grid, gridlib.BaseGrid):
             raise TypeError("'grid' should be a Grid object (given: {})".format(grid))
         self._grid = grid
 
@@ -129,12 +129,12 @@ class LinePencil(BasePencil):
         # use a set because of performance (should we generalize the use of sets for coordinates lists?)
         result = set([])
 
-        line = set(geometry.line(self._grid.cell_shape, x0, y0, x, y))
+        line = set(self._grid.line(x0, y0, x, y))
 
         # apply size with geometry.zone
         if self._grid.size >= 1:
             for x, y in line:
-                result |= set(geometry.zone(self._grid.cell_shape, x, y, self.size - 1))
+                result |= set(self._grid.zone(x, y, self.size - 1))
 
         self._added = result - self._selection
         self._removed = self._selection - result
@@ -148,7 +148,7 @@ class FreePencil(BasePencil):
 
     def _update(self):
         x, y = self.position
-        zone_set = set(geometry.zone(self._grid.cell_shape, x, y, self.size))
+        zone_set = set(self._grid.zone(x, y, self.size))
 
         self._added = zone_set - self._selection
         # there can't be any removed coordinates with this pencil
@@ -201,16 +201,15 @@ class PaintPotPencil(BasePencil):
     def _update(self):
         x0, y0 = self._origin
         current_selection = { (x0, y0) }
-        buffer = set(geometry.neighbours(self._grid._cell_shape, x0, y0))
+        buffer = set(self._grid.neighbours(x0, y0))
 
         while len(buffer) > 0:
             x, y = buffer.pop()
             if self._comparing_method_pointer(x0, y0, x, y):
                 current_selection.add((x, y))
-                buffer |= (set(geometry.neighbours(self._grid._cell_shape, x, y)) - current_selection)
+                buffer |= (set(self._grid.neighbours(x, y)) - current_selection)
 
         self._selection = current_selection
-
 
 class RectanglePencil(BasePencil):
     """ RectanglePencil draw a plain rectangle with origin being the
@@ -222,7 +221,7 @@ class RectanglePencil(BasePencil):
         x1, y1 = self._origin
         x2, y2 = self._position
 
-        new_selection = set(geometry.rectangle(x1, y1, x2, y2))
+        new_selection = set(self._grid.rectangle(x1, y1, x2, y2))
 
         self._added = new_selection - self._selection
         self._removed = self._selection - new_selection
@@ -238,7 +237,7 @@ class HollowRectanglePencil(BasePencil):
         x1, y1 = self._origin
         x2, y2 = self._position
 
-        new_selection = set(geometry.hollow_rectangle(x1, y1, x2, y2))
+        new_selection = set(self._grid.hollow_rectangle(x1, y1, x2, y2))
 
         self._added = new_selection - self._selection
         self._removed = self._selection - new_selection
@@ -265,22 +264,22 @@ class BoundaryPencil(BasePencil):
         dx, dy = x - x0, y - y0
 
         if dx == 0:  # vertical boudary
-            selection = {(x, y) for x, y in self._grid.cells.keys() if (x - x0) * dy >= 0}
+            selection = {(x, y) for x, y in self._grid if (x - x0) * dy >= 0}
 
         elif dy == 0:  # horizontal boundary
-            selection = {(x, y) for x, y in self._grid.cells.keys() if (y - y0) * (-dx) >= 0}
+            selection = {(x, y) for x, y in self._grid if (y - y0) * (-dx) >= 0}
 
         elif dx > 0 and dy < 0:  # normal vector to the top left
-            selection = {(x , y) for x, y in self._grid.cells.keys() if (x - x0) + (y - y0) <= 0}
+            selection = {(x , y) for x, y in self._grid if (x - x0) + (y - y0) <= 0}
 
         elif dx > 0 and dy > 0:  # normal vector to the top right
-            selection = {(x , y) for x, y in self._grid.cells.keys() if (x - x0) - (y - y0) >= 0}
+            selection = {(x , y) for x, y in self._grid if (x - x0) - (y - y0) >= 0}
 
         elif dx < 0 and dy < 0:  # normal vector to bottom left
-            selection = {(x , y) for x, y in self._grid.cells.keys() if -(x - x0) + (y - y0) >= 0}
+            selection = {(x , y) for x, y in self._grid if -(x - x0) + (y - y0) >= 0}
 
         elif dx < 0 and dy > 0:  # normal vector to bottom right
-            selection = {(x , y) for x, y in self._grid.cells.keys() if -(x - x0) - (y - y0) <= 0}
+            selection = {(x , y) for x, y in self._grid if -(x - x0) - (y - y0) <= 0}
 
         self._added = selection - self._selection
         self._removed = self._selection - selection
