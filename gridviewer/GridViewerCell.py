@@ -7,9 +7,6 @@ from PyQt5.QtGui import QPolygonF, QPen, QBrush, QColor, QFont
 from PyQt5.QtWidgets import QGraphicsPolygonItem, QGraphicsItem, \
     QGraphicsSimpleTextItem
 
-from pypog import geometry
-from pypog import graphic
-
 class GridViewerCell(QGraphicsPolygonItem):
 
     def __init__(self, gridViewer, x, y):
@@ -19,10 +16,9 @@ class GridViewerCell(QGraphicsPolygonItem):
         self.y = y
         self.selected = False
 
-    def generate(self, shape, scale=120, show_label=False):
+    def generate(self, points, show_label=False):
 
-        points = [QPointF(xp, yp) for xp, yp in graphic.g_cell(shape, self.x, self.y, scale)]
-        qpolygon = QPolygonF(points)
+        qpolygon = QPolygonF([QPointF(xp, yp) for xp, yp in points])
 
         self.setPolygon(qpolygon)
 
@@ -35,14 +31,13 @@ class GridViewerCell(QGraphicsPolygonItem):
         self.label = QGraphicsSimpleTextItem("{}-{}".format(self.x, self.y), parent=self)
         self.label.setVisible(show_label)
 
-        k = 0
-        if (self.x % 2) != 0:
-            k = 0.5
-
-        if shape == geometry.FLAT_HEX:
-            self.label.setPos(QPointF(((self.x * 0.866) + 0.2886) * scale, (self.y + k + 0.5) * scale))
-        else:
-            self.label.setPos(QPointF(self.x * scale, self.y * scale))
+#         k = 0
+#         if (self.x % 2) != 0:
+#             k = 0.5
+#         if shape == geometry.FLAT_HEX:
+#             self.label.setPos(QPointF(((self.x * 0.866) + 0.2886) * scale, (self.y + k + 0.5) * scale))
+#         else:
+#             self.label.setPos(QPointF(self.x * scale, self.y * scale))
 
         font = QFont()
         font.setPointSize(20)
@@ -59,7 +54,6 @@ class GridViewerCell(QGraphicsPolygonItem):
         self.gridViewer.remove_from_selection(self.x, self.y)
 
     def mousePressEvent(self, *args, **kwargs):
-
         if self.selected:
             self.unselect()
         else:
