@@ -1,4 +1,5 @@
 *.pyc
 .project
 .pydevproject
-bac_a_sable.py
+htmlcov/
+.coverage

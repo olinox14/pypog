@@ -1,95 +1,111 @@
 '''
-    Grid objects
+    Geometry objects
 
     ** By Cro-Ki l@b, 2017 **
 '''
 from math import sqrt
+import math
 
 
-class BaseGrid(object):
-    """ Base class for grids
-    This class should be overriden """
-    def __init__(self, width, height):
-        """ instanciate a new BaseGrid object """
-        self._width = 0
-        self.width = width
-        self._height = 0
-        self.height = height
+class BoundingRect(tuple):
+    """ Bounding rectangle defined by a top-left (xmin, ymin) point
+     and a bottom-right (xmax, ymax) point """
+    def __new__(self, xmin, ymin, xmax, ymax):
+        return tuple.__new__(self, (xmin, ymin, xmax, ymax))
+
+    @classmethod
+    def from_(cls, *args):
+        BaseGeometry.assertCoordinates(*args)
+        xs, ys = zip(*list(args))
+        xs, ys = sorted(list(xs)), sorted(list(ys))
+        return cls(xs[0], ys[0], xs[-1], ys[-1])
+
+    @property
+    def xmin(self):
+        return self[0]
+
+    @property
+    def ymin(self):
+        return self[1]
+
+    @property
+    def xmax(self):
+        return self[2]
+
+    @property
+    def ymax(self):
+        return self[3]
+
+    def __contains__(self, key):
+        BaseGeometry.assertCoordinates(key)
+        return self.xmin <= key[0] <= self.xmax and self.ymin <= key[1] <= self.ymax
+
+    @property
+    def topleft(self):
+        return (self.xmin, self.ymin)
+
+    @property
+    def bottomright(self):
+        return (self.xmax, self.ymax)
+
+    @property
+    def width(self):
+        return self.xmax - self.xmin + 1
+
+    @property
+    def height(self):
+        return self.ymax - self.ymin + 1
+
+class IBoundingRect(BoundingRect):
+    """ Infinite bounding rectangle
+    >> '(x, y) in IBoundingRect()' is always True"""
+    def __new__(self):
+        return BoundingRect.__new__(self, -math.inf, -math.inf, math.inf, math.inf)
+
+
+class BaseGeometry:
+    """ Base class for geometry classes
+    ! Should be overriden """
+    ANGLES = (1, 2, 3)
 
     def __repr__(self):
         return "<{} object>".format(self.__class__.__name__)
 
+    @classmethod
+    def instance(cls):
+        return cls()
+
     @staticmethod
-    def _assertCoordinates(*args):
+    def assertCoordinates(*args):
         """ raise a ValueError if the args are not (x, y) iterables, where x and y are integers
         usage:
-            self._assertCoordinates((x1, y1), (x2, y2), ...)
+            self.assertCoordinates((x1, y1), (x2, y2), ...)
         """
         try:
             if all([isinstance(i, int) for x, y in args for i in (x, y)]):
                 return
         except (TypeError, ValueError):
             pass
-        raise ValueError("{} is not a valid (x, y) coordinates iterable".format(args))
+        raise ValueError("'{}' is not a valid (x, y) coordinates iterable".format(args))
 
-    # properties
-    @property
-    def width(self):
-        """ the width of the grid """
-        return self._width
+    @staticmethod
+    def _assertPositiveInt(value, strict=False):
+        """ raise a ValueError if the 'value' is not a dimension,
+        i.e. a (strictly) positive integer """
+        if not isinstance(value, int) or not ((value > 0) or (not strict and value >= 0)):
+            raise ValueError("Expected: strictly positive integer(given: '{}')".format(value))
 
-    @width.setter
-    def width(self, width):
-        """ set a new width for the grid.
-        the new width has to be a strictly positive integer"""
-        if not isinstance(width, int) or not width > 0:
-            raise ValueError("'width' has to be a strictly positive integer")
-        self._width = width
+    @staticmethod
+    def _assertValidAngle(value):
+        """ raise a ValueError if the 'value' is not a valid angle """
+        if not value in BaseGeometry.ANGLES:
+            raise ValueError("angle has to be a value from BaseGeometry.ANGLES (given: {})".format(value))
 
-    @property
-    def height(self):
-        """ the height of the grid """
-        return self._height
+    @staticmethod
+    def _bounding_rect(*args):
+        """ return the bounding rectangle of the from (x, y) coordinates """
+        return BoundingRect.from_(*args)
 
-    @height.setter
-    def height(self, height):
-        """ set a new height for the grid.
-        the new height has to be a strictly positive integer"""
-        if not isinstance(height, int) or not height > 0:
-            raise ValueError("'width' has to be a strictly positive integer")
-        self._height = height
-
-    # geometric methods
-    def __len__(self):
-        """ return the number of cells in the grid """
-        return self.height * self.width
-
-    def __contains__(self, key):
-        """return True if the (x, y) coordinates are in the grid"""
-        try:
-            self._assertCoordinates(key)
-        except ValueError:
-            pass
-        else:
-            return 0 <= key[0] < self._width and 0 <= key[1] < self._height
-        return False
-
-    def __iter__(self):
-        """ iterate over the coordinates of the grid """
-        for item in ((x, y) for x in range(self.width) for y in range(self.height)):
-            yield item
-        raise StopIteration()
-
-    @classmethod
-    def _bounding_rect(cls, *args):
-        """ return (xmin, ymin, xmax, ymax) from (x, y) coordinates """
-        cls._assertCoordinates(*args)
-        xs, ys = zip(*args)
-        xs.sort()
-        ys.sort()
-        return xs[0], xs[-1], ys[0], ys[-1]
-
-    # graphical methods
     @staticmethod
     def graphicsitem(x, y, scale=120):
         """ returns the list of the points which compose the (x, y) cell """
@@ -97,40 +113,33 @@ class BaseGrid(object):
 
     # geometrical algorithms
     @classmethod
-    def neighbors(cls, x, y):
+    def neighbors(cls, x, y, br=IBoundingRect()):
         """ returns a list of the neighbors of (x, y) """
-        return [key for key in cls._neighbors(x, y) if cls._is_in(key)]
-
-    @classmethod
-    def _neighbors(cls, x, y):
         raise NotImplementedError("this method is abstract and should be reimplemented in subclasses")
 
     @classmethod
-    def line(cls, x1, y1, x2, y2):
+    def line(cls, x1, y1, x2, y2, br=IBoundingRect()):
         raise NotImplementedError("this method is abstract and should be reimplemented in subclasses")
 
     @classmethod
-    def line3d(cls, x1, y1, z1, x2, y2, z2):
+    def line3d(cls, x1, y1, z1, x2, y2, z2, br=IBoundingRect()):
         """ returns a line from (x1 ,y1, z1) to (x2, y2, z2)
         as a list of (x, y, z) coordinates """
-        if not all(isinstance(c, int) for c in [z1, z2]):
-            raise TypeError("x1, y1, z1, x2, y2, z2 have to be integers")
+        cls.assertCoordinates((z1, z2))
         hoLine = cls.line(x1, y1, x2, y2)
         if z1 == z2:
             return [(x, y, z1) for x, y in hoLine]
         else:
-            ligneZ = SquareGrid.line(0, z1, (len(hoLine) - 1), z2)
+            ligneZ = SquareGeometry.line(0, z1, (len(hoLine) - 1), z2)
             return [(hoLine[d][0], hoLine[d][1], z) for d, z in ligneZ]
 
     @classmethod
-    def zone(cls, x, y, radius):
+    def zone(cls, x, y, radius, br=IBoundingRect()):
         """ returns the list of the coordinates of the cells in a zone around (x, y)
         """
-        cls._assertCoordinates((x, y))
-        if not isinstance(radius, int):
-            raise TypeError("radius has to be an integer (given: {})".format(radius))
-        if not radius >= 0:
-            raise ValueError("radius has to be positive")
+        cls.assertCoordinates((x, y))
+        cls._assertPositiveInt(radius)
+
         buffer = frozenset([(x, y)])
 
         for _ in range(0, radius):
@@ -140,13 +149,13 @@ class BaseGrid(object):
         return list(buffer)
 
     @classmethod
-    def triangle(cls, xa, ya, xh, yh, iAngle):
+    def triangle(cls, xa, ya, xh, yh, iAngle, br=IBoundingRect()):
         """ return the list of the (x, y) coordinates in a triangle
         with (xa, ya) apex and (xh, yh) middle of the base """
         raise NotImplementedError("this method is abstract and should be reimplemented in subclasses")
 
     @classmethod
-    def triangle3d(self, xa, ya, za, xh, yh, zh, iAngle):
+    def triangle3d(self, xa, ya, za, xh, yh, zh, iAngle, br=IBoundingRect()):
         """Returns a list of (x, y, z) coordinates in a 3d-cone
         A is the top of the cone, H if the center of the base
 
@@ -160,42 +169,35 @@ class BaseGrid(object):
         raise NotImplementedError("this method is abstract and should be reimplemented in subclasses")
 
     @classmethod
-    def rectangle(cls, x1, y1, x2, y2):
+    def rectangle(cls, x1, y1, x2, y2, br=IBoundingRect()):
         """return a list of cells in a rectangle between (X1, Y1), (X2, Y2)"""
-        cls._assertCoordinates((x1, y1), (x2, y2))
-        xa, ya, xb, yb = min([x1, x2]), min([y1, y2]), max([x1, x2]), max([y1, y2])
-        return [(x, y) for x in range(xa, xb + 1) for y in range(ya, yb + 1)]
-
-    @classmethod
-    def hollow_rectangle(cls, x1, y1, x2, y2):
-        """return a list of cells composing the sides of the rectangle between (X1, Y1), (X2, Y2)"""
-        cls._assertCoordinates((x1, y1), (x2, y2))
         xmin, ymin, xmax, ymax = cls._bounding_rect((x1, y1), (x2, y2))
-        return [(x, ymin) for x in range(xmin, xmax + 1)] + \
-               [(x, ymax) for x in range(xmin, xmax + 1)] + \
-               [(xmin, y) for y in range(ymin, ymax + 1)] + \
-               [(xmax, y) for y in range(ymin, ymax + 1)]
+        return [(x, y) for x in range(xmin, xmax + 1) for y in range(ymin, ymax + 1)]
 
     @classmethod
-    def rotate(cls, center, coordinates, rotations):
+    def hollow_rectangle(cls, x1, y1, x2, y2, br=IBoundingRect()):
+        """return a list of cells composing the sides of the rectangle between (X1, Y1), (X2, Y2)"""
+        xmin, ymin, xmax, ymax = cls._bounding_rect((x1, y1), (x2, y2))
+        if (xmin, ymin) == (xmax, ymax):
+            return [(xmin, ymin)]
+        return [(x, ymin) for x in range(xmin, xmax)] + \
+               [(xmax, y) for y in range(ymin, ymax)] + \
+               [(x, ymax) for x in range(xmax, xmin, -1)] + \
+               [(xmin, y) for y in range(ymax, ymin, -1)]
+
+    @classmethod
+    def rotate(cls, center, coordinates, rotations, br=IBoundingRect()):
         """ return the 'coordinates' list of (x, y) coordinates
         after a rotation of 'rotations' times around the (x, y) center """
         raise NotImplementedError("this method is abstract and should be reimplemented in subclasses")
 
-#     def moving_cost(self, *args):
-#         return 1
-#
-#     def path(self, x1, y1, x2, y2):
-#         raise NotImplementedError("this method is abstract and should be reimplemented in subclasses")
-
-class SquareGrid(BaseGrid):
-    """ Square grid object """
-    def __init__(self, *args, **kwargs):
-        BaseGrid.__init__(self, *args, **kwargs)
+class SquareGeometry(BaseGeometry):
+    """ Geometry on square grids """
+    _nodiags = False
 
     @staticmethod
     def graphicsitem(x, y, scale=120):
-        """ reimplemented from BaseGrid.graphicsitem """
+        """ reimplemented from BaseGeometry.graphicsitem """
         return  [
                     (x * scale, y * scale), \
                     ((x + 1) * scale, y * scale), \
@@ -204,17 +206,32 @@ class SquareGrid(BaseGrid):
                 ]
 
     @classmethod
-    def _neighbors(cls, x, y):
-        """ reimplemented from BaseGrid._neighbors """
-        return [(x - 1, y - 1), (x, y - 1), (x + 1, y - 1), \
-                (x - 1, y), (x + 1, y)  , \
-                (x - 1, y + 1), (x, y + 1), (x + 1, y + 1)]
+    def set_no_diagonals(cls, active):
+        """ if nodiags is set to True, the neighbors method
+        won't return the diagonals cells """
+        cls._nodiags = active
 
     @classmethod
-    def line(cls, x1, y1, x2, y2):
-        """ reimplemented from BaseGrid.line
+    def neighbors(cls, x, y, br=IBoundingRect()):
+        """ reimplemented from BaseGeometry._neighbors """
+        cls.assertCoordinates((x, y))
+
+        if cls._nodiags:
+            return [(x, y - 1), \
+                    (x - 1, y), (x + 1, y)  , \
+                    (x, y + 1)]
+        else:
+            return [(x - 1, y - 1), (x, y - 1), (x + 1, y - 1), \
+                    (x - 1, y), (x + 1, y)  , \
+                    (x - 1, y + 1), (x, y + 1), (x + 1, y + 1)]
+
+    @classmethod
+    def line(cls, x1, y1, x2, y2, br=IBoundingRect()):
+        """ reimplemented from BaseGeometry.line
         Implementation of bresenham's algorithm
         """
+        cls.assertCoordinates((x1, y1), (x2, y2))
+
         result = []
 
         if (x1, y1) == (x2, y2):
@@ -249,8 +266,11 @@ class SquareGrid(BaseGrid):
         return result
 
     @classmethod
-    def triangle(cls, xa, ya, xh, yh, iAngle):
-        """ reimplemented from BaseGrid.triangle """
+    def triangle(cls, xa, ya, xh, yh, iAngle, br=IBoundingRect()):
+        """ reimplemented from BaseGeometry.triangle """
+        cls.assertCoordinates((xa, ya), (xh, yh))
+        cls._assertValidAngle(iAngle)
+
         if (xa, ya) == (xh, yh):
             return [(xa, ya)]
 
@@ -300,11 +320,12 @@ class SquareGrid(BaseGrid):
         return result
 
     @classmethod
-    def triangle3d(cls, xa, ya, za, xh, yh, zh, iAngle):
-        """ reimplemented from BaseGrid.triangle3d """
-        result = []
-
+    def triangle3d(cls, xa, ya, za, xh, yh, zh, iAngle, br=IBoundingRect()):
+        """ reimplemented from BaseGeometry.triangle3d """
+        cls.assertCoordinates((za, zh))
         flat_triangle = cls.triangle(xa, ya, xh, yh, iAngle)
+
+        result = {}
         k = 1 / (iAngle * sqrt(3))
 
         length = max(abs(xh - xa), abs(yh - ya))
@@ -330,8 +351,10 @@ class SquareGrid(BaseGrid):
 
 
     @classmethod
-    def rotate(cls, center, coordinates, rotations):
-        """ reimplemented from BaseGrid.rotate """
+    def rotate(cls, center, coordinates, rotations, br=IBoundingRect()):
+        """ reimplemented from BaseGeometry.rotate """
+        cls.assertCoordinates(center, *coordinates)
+
         if coordinates == [center] or rotations % 4 == 0:
             return coordinates
         x0, y0 = center
@@ -344,11 +367,9 @@ class SquareGrid(BaseGrid):
             result.append((xr, yr))
         return result
 
-class _HexGrid(BaseGrid):
+class HexGeometry(BaseGeometry):
     """ Base class for hexagonal grids classes
     This class should be overridden """
-    def __init__(self, *args, **kwargs):
-        BaseGrid.__init__(self, *args, **kwargs)
 
     @staticmethod
     def cv_cube_off(xu, yu, zu):
@@ -391,20 +412,17 @@ class _HexGrid(BaseGrid):
     def distance_off(xa, ya, xb, yb):
         """ distance between A and B (offset coordinates)"""
         # 10 times quicker if no conversion...
-        xua, yua, zua = FHexGrid.cv_off_cube(xa, ya)
-        xub, yub, zub = FHexGrid.cv_off_cube(xb, yb)
+        xua, yua, zua = HexGeometry.cv_off_cube(xa, ya)
+        xub, yub, zub = HexGeometry.cv_off_cube(xb, yb)
         return max(abs(xua - xub), abs(yua - yub), abs(zua - zub))
 
 
-class FHexGrid(_HexGrid):
+class FHexGeometry(HexGeometry):
     """ Flat-hexagonal grid object """
-
-    def __init__(self, *args, **kwargs):
-        _HexGrid.__init__(self, *args, **kwargs)
 
     @staticmethod
     def graphicsitem(x, y, scale=120):
-        """ reimplemented from BaseGrid.graphicsitem """
+        """ reimplemented from BaseGeometry.graphicsitem """
         if x % 2 != 0:
             y += 0.5
         return [
@@ -417,16 +435,18 @@ class FHexGrid(_HexGrid):
                 ]
 
     @classmethod
-    def _neighbors(cls, x, y):
+    def neighbors(cls, x, y, br=IBoundingRect()):
         if x % 2 == 0:
             return [(x, y - 1), (x + 1, y - 1), (x + 1, y), (x, y + 1), (x - 1, y), (x - 1, y - 1)]
         else:
             return [(x, y - 1), (x + 1, y), (x + 1, y + 1), (x, y + 1), (x - 1, y + 1), (x - 1, y)]
 
     @classmethod
-    def line(cls, x1, y1, x2, y2):
-        """ reimplemented from BaseGrid.line
+    def line(cls, x1, y1, x2, y2, br=IBoundingRect()):
+        """ reimplemented from BaseGeometry.line
         Implementation of bresenham's algorithm """
+        cls.assertCoordinates((x1, y1), (x2, y2))
+
         if (x1, y1) == (x2, y2):
             return [(x1, y1)]
 
@@ -522,8 +542,11 @@ class FHexGrid(_HexGrid):
         return result
 
     @classmethod
-    def triangle(cls, xa, ya, xh, yh, iAngle):
-        """ reimplemented from BaseGrid.triangle """
+    def triangle(cls, xa, ya, xh, yh, iAngle, br=IBoundingRect()):
+        """ reimplemented from BaseGeometry.triangle """
+        cls.assertCoordinates((xa, ya), (xh, yh))
+        cls._assertValidAngle(iAngle)
+
         if (xa, ya) == (xh, yh):
             return [(xa, ya)]
 
@@ -581,9 +604,9 @@ class FHexGrid(_HexGrid):
         return result
 
     @classmethod
-    def triangle3d(cls, xa, ya, za, xh, yh, zh, iAngle):
-        """ reimplemented from BaseGrid.triangle3d """
-
+    def triangle3d(cls, xa, ya, za, xh, yh, zh, iAngle, br=IBoundingRect()):
+        """ reimplemented from BaseGeometry.triangle3d """
+        cls.assertCoordinates((za, zh))
         flat_triangle = cls.triangle(xa, ya, xh, yh, iAngle)
 
         result = {}
@@ -596,7 +619,7 @@ class FHexGrid(_HexGrid):
 
         length = max(abs(xuh - xua), abs(yuh - yua), abs(zuh - zua))
 
-        vertical_line = SquareGrid.line(0, za, length, zh)
+        vertical_line = SquareGeometry.line(0, za, length, zh)
 
         # build a dict with X key and value is a list of Z values
         vertical_line_dict = {d:[] for d, z in vertical_line}
@@ -617,8 +640,10 @@ class FHexGrid(_HexGrid):
         return result
 
     @classmethod
-    def rotate(cls, center, coordinates, rotations):
-        """ reimplemented from BaseGrid.rotate """
+    def rotate(cls, center, coordinates, rotations, br=IBoundingRect()):
+        """ reimplemented from BaseGeometry.rotate """
+        cls.assertCoordinates(center, *coordinates)
+
         if coordinates == [center] or rotations % 6 == 0:
             return coordinates
         x0, y0 = center
@@ -634,6 +659,3 @@ class FHexGrid(_HexGrid):
             xr, yr = cls.cv_cube_off(xru, yru, zru)
             result.append((xr, yr))
         return result
-
-
-

@@ -13,7 +13,7 @@
 
     ** By Cro-Ki l@b, 2017 **
 '''
-from pypog import gridlib
+from pypog import geometry_objects
 
 
 class NotStartedException(Exception):
@@ -30,7 +30,7 @@ class BasePencil(object):
     def __init__(self, grid):
 
         # do we really need the grid ref? cell_shape could be enough?
-        if not isinstance(grid, gridlib.BaseGrid):
+        if not isinstance(grid, geometry_objects.BaseGeometry):
             raise TypeError("'grid' should be a Grid object (given: {})".format(grid))
         self._grid = grid
 
