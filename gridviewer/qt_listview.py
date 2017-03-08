@@ -17,12 +17,14 @@ class Ui_window(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.txt_list = QtWidgets.QTextEdit(window)
         self.txt_list.setMinimumSize(QtCore.QSize(183, 0))
+        self.txt_list.setAcceptRichText(False)
         self.txt_list.setObjectName("txt_list")
         self.verticalLayout.addWidget(self.txt_list)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, -1, -1, 10)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.btn_cancel = QtWidgets.QPushButton(window)
+        self.btn_cancel.setAutoDefault(False)
         self.btn_cancel.setObjectName("btn_cancel")
         self.horizontalLayout.addWidget(self.btn_cancel)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -40,5 +42,5 @@ class Ui_window(object):
         _translate = QtCore.QCoreApplication.translate
         window.setWindowTitle(_translate("window", "List View"))
         self.btn_cancel.setText(_translate("window", "Cancel"))
-        self.btn_ok.setText(_translate("window", "Ok"))
+        self.btn_ok.setText(_translate("window", "Update"))
 

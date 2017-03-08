@@ -2,7 +2,7 @@
 Tipog tests
 
 Usage:
-  tipog [-v] <filename> [-o <output>]
+  itpog [-v] <filename> [-o <output>]
 
 Options:
   -v --verbose       Verbose print

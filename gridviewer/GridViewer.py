@@ -9,6 +9,9 @@ from PyQt5.QtCore import QPointF
 from PyQt5.QtWidgets import QMainWindow, \
     QApplication, QGraphicsScene, QGraphicsView
 import ipdb  # until I find another way to print traceback with pyqt5
+
+from gridviewer.GridDialogBox import GridDialogBox
+from gridviewer.ListViewDialog import ListViewDialog
 from pypog.grid_objects import SquareGrid
 
 
@@ -51,6 +54,7 @@ class GridViewer(QMainWindow):
 
     def make_grid(self, grid):
         QApplication.setOverrideCursor(Qt.WaitCursor)
+        self.grid = grid
         self.cells = {}
         self.selection = []
 
@@ -76,12 +80,16 @@ class GridViewer(QMainWindow):
         self.selection.remove((x, y))
 
     def update_selected_cells(self, new_selection):
+        if not new_selection != self.selection:
+            return
+
         QApplication.setOverrideCursor(Qt.WaitCursor)
         for x, y in tuple(self.selection):
             self.cells[(x, y)].unselect()
 
         for x, y in new_selection:
-            self.cells[(x, y)].select()
+            if (x, y) in self.grid:
+                self.cells[(x, y)].select()
         QApplication.restoreOverrideCursor()
 
     def update_cell_labels(self):
@@ -95,10 +103,12 @@ class GridViewer(QMainWindow):
         self.ui.view.scale(0.9, 0.9)
 
     def new_grid_dialog(self):
-        pass
+        grid = GridDialogBox.get()
+        self.make_grid(grid)
 
     def list_view_dialog(self):
-        pass
+        new_lst = ListViewDialog(self.selection).exec_()
+        self.update_selected_cells(new_lst)
 
     def run_f(self):
         pass

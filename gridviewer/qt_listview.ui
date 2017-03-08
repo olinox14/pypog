@@ -25,6 +25,9 @@
        <height>0</height>
       </size>
      </property>
+     <property name="acceptRichText">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
    <item>
@@ -36,6 +39,9 @@
       <widget class="QPushButton" name="btn_cancel">
        <property name="text">
         <string>Cancel</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -55,7 +61,7 @@
      <item>
       <widget class="QPushButton" name="btn_ok">
        <property name="text">
-        <string>Ok</string>
+        <string>Update</string>
        </property>
        <property name="autoDefault">
         <bool>true</bool>
