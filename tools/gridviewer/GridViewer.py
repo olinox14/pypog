@@ -2,16 +2,13 @@
 
     ** By Cro-Ki l@b, 2017 **
 '''
-import sys
-
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import QPointF
 from PyQt5.QtWidgets import QMainWindow, \
     QApplication, QGraphicsScene, QGraphicsView
-import ipdb  # until I find another way to print traceback with pyqt5
 
-from gridviewer.GridDialogBox import GridDialogBox
-from gridviewer.ListViewDialog import ListViewDialog
+from GridDialogBox import GridDialogBox
+from ListViewDialog import ListViewDialog
 from pypog.grid_objects import SquareGrid
 
 
@@ -34,23 +31,28 @@ class GridViewer(QMainWindow):
         self.ui = Ui_window()
         self.ui.setupUi(self)
 
-        self._scene = QGraphicsScene()
-        self.ui.view.setScene(self._scene)
-        self.ui.view.scale(0.5, 0.5)
-        self.ui.view.centerOn(QPointF(0, 0))
-        self.ui.view.setDragMode(QGraphicsView.NoDrag)
+        self._init_scene()
 
         self.ui.btn_new_grid.clicked.connect(self.new_grid_dialog)
-
-        self.ui.btn_run.clicked.connect(self.run_f)
-
         self.ui.btn_list_view.clicked.connect(self.list_view_dialog)
-
         self.ui.btn_zoom_plus.clicked.connect(self.zoom_plus)
         self.ui.btn_zoom_minus.clicked.connect(self.zoom_minus)
         self.ui.chk_displayCoords.toggled.connect(self.update_cell_labels)
 
         self.make_grid(SquareGrid(30, 30))
+
+    def _init_scene(self):
+        self._scene = QGraphicsScene()
+        self._scene.setItemIndexMethod(QGraphicsScene.BspTreeIndex)
+
+        self.ui.view.setScene(self._scene)
+        self.ui.view.scale(0.5, 0.5)
+        self.ui.view.centerOn(QPointF(0, 0))
+
+        self.ui.view.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
+
+        self.ui.view.setDragMode(QGraphicsView.NoDrag)
+        self.ui.view.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
 
     def make_grid(self, grid):
         QApplication.setOverrideCursor(Qt.WaitCursor)
@@ -110,13 +112,22 @@ class GridViewer(QMainWindow):
         new_lst = ListViewDialog(self.selection).exec_()
         self.update_selected_cells(new_lst)
 
-    def run_f(self):
-        pass
+    def wheelEvent(self, event):
+        if event.angleDelta().y() > 0:
+#             self.zoom_plus()
+            event.accept()
+        elif event.angleDelta().y() < 0:
+#             self.zoom_minus()
+            event.accept()
+        else:
+            event.ignore()
 
-if __name__ == "__main__":
-
-    app = QApplication(sys.argv)
-    gv = GridViewer()
-    gv.show()
-    r = app.exec_()
-    exit(r)
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Left:
+            pass
+        elif event.key() == Qt.Key_Right:
+            pass
+        elif event.key() == Qt.Key_Down:
+            pass
+        elif event.key() == Qt.Key_Up:
+            pass

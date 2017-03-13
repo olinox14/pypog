@@ -203,7 +203,28 @@
        </widget>
       </item>
       <item>
-       <widget class="QGraphicsView" name="view"/>
+       <widget class="QGraphicsView" name="view">
+        <property name="font">
+         <font>
+          <stylestrategy>PreferAntialias</stylestrategy>
+         </font>
+        </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="transformationAnchor">
+         <enum>QGraphicsView::AnchorUnderMouse</enum>
+        </property>
+        <property name="resizeAnchor">
+         <enum>QGraphicsView::AnchorUnderMouse</enum>
+        </property>
+        <property name="viewportUpdateMode">
+         <enum>QGraphicsView::BoundingRectViewportUpdate</enum>
+        </property>
+       </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">

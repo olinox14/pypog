@@ -5,7 +5,7 @@ Created on 8 mars 2017
 '''
 from PyQt5.Qt import QDialog
 
-from gridviewer.qt_listview import Ui_window
+from qt_listview import Ui_window
 from pypog.geometry_objects import BaseGeometry
 
 class ListViewDialog(QDialog):

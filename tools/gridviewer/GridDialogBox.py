@@ -5,7 +5,7 @@ Created on 8 mars 2017
 '''
 from PyQt5.Qt import QDialog
 
-from gridviewer.qt_new_grid import Ui_window
+from qt_new_grid import Ui_window
 from pypog.grid_objects import FHexGrid, SquareGrid
 
 class GridDialogBox(QDialog):

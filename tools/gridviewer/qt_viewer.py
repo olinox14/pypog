@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt_viewer2.ui'
+# Form implementation generated from reading ui file 'qt_viewer.ui'
 #
 # Created by: PyQt5 UI code generator 5.7.1
 #
@@ -75,6 +75,12 @@ class Ui_window(object):
         self.horizontalLayout_2.addWidget(self.btn_list_view)
         self.verticalLayout.addWidget(self.frame_tools)
         self.view = QtWidgets.QGraphicsView(self.centralwidget)
+        font = QtGui.QFont()
+        font.setStyleStrategy(QtGui.QFont.PreferAntialias)
+        self.view.setFont(font)
+        self.view.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
+        self.view.setResizeAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
+        self.view.setViewportUpdateMode(QtWidgets.QGraphicsView.BoundingRectViewportUpdate)
         self.view.setObjectName("view")
         self.verticalLayout.addWidget(self.view)
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
