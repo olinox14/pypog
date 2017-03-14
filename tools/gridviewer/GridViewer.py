@@ -5,7 +5,7 @@
 
 from timeit import timeit
 
-from PyQt5.Qt import Qt
+from PyQt5.Qt import Qt, QEvent
 from PyQt5.QtCore import QPointF
 from PyQt5.QtWidgets import QMainWindow, \
     QApplication, QGraphicsScene, QGraphicsView
@@ -59,9 +59,19 @@ class GridViewer(QMainWindow):
         self.ui.view.centerOn(QPointF(0, 0))
 
         self.ui.view.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
-
         self.ui.view.setDragMode(QGraphicsView.NoDrag)
         self.ui.view.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+
+        self.ui.view.viewport().installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Wheel:
+            if event.angleDelta().y() > 0:
+                self.zoom_plus()
+            elif event.angleDelta().y() < 0:
+                self.zoom_minus()
+            return True
+        return False
 
     def make_grid(self, grid):
         QApplication.setOverrideCursor(Qt.WaitCursor)
@@ -122,26 +132,6 @@ class GridViewer(QMainWindow):
     def list_view_dialog(self):
         new_lst = ListViewDialog(self.selection).exec_()
         self.update_selected_cells(new_lst)
-
-    def wheelEvent(self, event):
-        if event.angleDelta().y() > 0:
-#             self.zoom_plus()
-            event.accept()
-        elif event.angleDelta().y() < 0:
-#             self.zoom_minus()
-            event.accept()
-        else:
-            event.ignore()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Left:
-            pass
-        elif event.key() == Qt.Key_Right:
-            pass
-        elif event.key() == Qt.Key_Down:
-            pass
-        elif event.key() == Qt.Key_Up:
-            pass
 
     def job_names(self):
         with open("jobs.yml", "r") as f:
