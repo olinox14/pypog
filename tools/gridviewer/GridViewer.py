@@ -156,7 +156,7 @@ class GridViewer(QMainWindow):
             self._update_stack_job()
 
     def job_validate_clicked(self):
-        self.save_result_for(*self.job_results[self.job_index])
+        self.save_result(*self.job_results[self.job_index])
         self._update_stack_job()
 
     def _update_stack_job(self):

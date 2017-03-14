@@ -4,7 +4,7 @@ Generates an hexagonal or square grid and implement it in your game!
 
 *pypog is under [GNU License](https://github.com/olinox14/pypog/blob/master/LICENSE.txt)*
 
-[![Build Status](https://travis-ci.org/olinox14/pypog.svg?branch=master)](https://travis-ci.org/olinox14/pypog) [![Coverage Status](https://coveralls.io/repos/github/olinox14/pypog/badge.svg?branch=master)](https://coveralls.io/github/olinox14/pypog?branch=master)
+[![Build Status](https://travis-ci.org/cro-ki/pypog.svg?branch=master)](https://travis-ci.org/cro-ki/pypog) [![Coverage Status](https://coveralls.io/repos/github/cro-ki/pypog/badge.svg?branch=master)](https://coveralls.io/github/cro-ki/pypog?branch=master)
 
 ### Pypog is currently on developpement, do not hesitate to involve!
 
