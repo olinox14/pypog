@@ -9,13 +9,11 @@ from PyQt5.Qt import Qt
 from PyQt5.QtCore import QPointF
 from PyQt5.QtWidgets import QMainWindow, \
     QApplication, QGraphicsScene, QGraphicsView
-import ipdb  # until I find another way to print traceback with pyqt5
 import yaml
 
 from GridDialogBox import GridDialogBox
 from GridViewerCell import GridViewerCell
 from ListViewDialog import ListViewDialog
-from pypog.grid_objects import SquareGrid
 from pypog.grid_objects import SquareGrid, FHexGrid
 from qt_viewer import Ui_window
 
@@ -38,11 +36,17 @@ class GridViewer(QMainWindow):
 
         self.ui.btn_new_grid.clicked.connect(self.new_grid_dialog)
 
-        self.ui.btn_run.clicked.connect(self.run_f)
         self.ui.btn_list_view.clicked.connect(self.list_view_dialog)
         self.ui.btn_zoom_plus.clicked.connect(self.zoom_plus)
         self.ui.btn_zoom_minus.clicked.connect(self.zoom_minus)
         self.ui.chk_displayCoords.toggled.connect(self.update_cell_labels)
+
+        self.ui.cb_jobs.insertItems(0, self.job_names())
+        self.update_stack_job()
+        self.ui.btn_run_job.clicked.connect(self.run_selected_job)
+        self.ui.btn_job_next.clicked.connect(self.job_next)
+        self.ui.btn_job_previous.clicked.connect(self.job_previous)
+        self.ui.btn_job_validate.clicked.connect(self.job_validate)
 
         self.make_grid(SquareGrid(30, 30))
 
@@ -58,13 +62,6 @@ class GridViewer(QMainWindow):
 
         self.ui.view.setDragMode(QGraphicsView.NoDrag)
         self.ui.view.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-
-        self.ui.cb_jobs.insertItems(0, self.job_names())
-        self.update_stack_job()
-        self.ui.btn_run_job.clicked.connect(self.run_selected_job)
-        self.ui.btn_job_next.clicked.connect(self.job_next)
-        self.ui.btn_job_previous.clicked.connect(self.job_previous)
-        self.ui.btn_job_validate.clicked.connect(self.job_validate)
 
     def make_grid(self, grid):
         QApplication.setOverrideCursor(Qt.WaitCursor)
