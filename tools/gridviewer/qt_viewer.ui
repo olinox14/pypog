@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>910</width>
+    <width>909</width>
     <height>658</height>
    </rect>
   </property>
@@ -123,45 +123,17 @@
           </spacer>
          </item>
          <item>
-          <widget class="QComboBox" name="cb_functions"/>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="txt_args">
+          <widget class="QComboBox" name="cb_jobs">
            <property name="minimumSize">
             <size>
-             <width>200</width>
+             <width>150</width>
              <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>200</width>
-             <height>16777215</height>
             </size>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="chk_expand">
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Auto-expand</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="btn_run">
+          <widget class="QToolButton" name="btn_run_job">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -175,7 +147,7 @@
             </size>
            </property>
            <property name="text">
-            <string>&gt;</string>
+            <string>Run job</string>
            </property>
           </widget>
          </item>
@@ -200,6 +172,84 @@
           </widget>
          </item>
         </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QStackedWidget" name="stack_job">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="page_2"/>
+        <widget class="QWidget" name="page">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <property name="leftMargin">
+           <number>3</number>
+          </property>
+          <property name="topMargin">
+           <number>3</number>
+          </property>
+          <property name="rightMargin">
+           <number>3</number>
+          </property>
+          <property name="bottomMargin">
+           <number>3</number>
+          </property>
+          <item>
+           <widget class="QToolButton" name="btn_job_previous">
+            <property name="text">
+             <string>&lt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="btn_job_next">
+            <property name="text">
+             <string>&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lbl_job_number">
+            <property name="text">
+             <string>Test 1 / 1</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="txt_job_run">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lbl_job_exectime">
+            <property name="text">
+             <string>Exec. in 1000.000 ms. (saved: 10000.000 ms.)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_job_validate">
+            <property name="text">
+             <string>Validate</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
       <item>
@@ -301,9 +351,7 @@
  <tabstops>
   <tabstop>view</tabstop>
   <tabstop>btn_new_grid</tabstop>
-  <tabstop>cb_functions</tabstop>
-  <tabstop>txt_args</tabstop>
-  <tabstop>chk_expand</tabstop>
+  <tabstop>cb_jobs</tabstop>
   <tabstop>btn_list_view</tabstop>
   <tabstop>btn_zoom_plus</tabstop>
   <tabstop>btn_zoom_minus</tabstop>

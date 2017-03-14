@@ -2,22 +2,23 @@
 
     ** By Cro-Ki l@b, 2017 **
 '''
+
+from timeit import timeit
+
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import QPointF
 from PyQt5.QtWidgets import QMainWindow, \
     QApplication, QGraphicsScene, QGraphicsView
+import ipdb  # until I find another way to print traceback with pyqt5
+import yaml
 
 from GridDialogBox import GridDialogBox
+from GridViewerCell import GridViewerCell
 from ListViewDialog import ListViewDialog
 from pypog.grid_objects import SquareGrid
+from pypog.grid_objects import SquareGrid, FHexGrid
+from qt_viewer import Ui_window
 
-
-try:
-    from gridviewer.GridViewerCell import GridViewerCell
-    from gridviewer.qt_viewer import Ui_window
-except ImportError:
-    from GridViewerCell import GridViewerCell
-    from qt_viewer import Ui_window
 
 class GridViewer(QMainWindow):
 
@@ -25,6 +26,8 @@ class GridViewer(QMainWindow):
         super (GridViewer, self).__init__()
         self.cells = {}
         self.selection = []
+        self.job_index = 0
+        self.job_results = []
         self.createWidgets()
 
     def createWidgets(self):
@@ -34,6 +37,8 @@ class GridViewer(QMainWindow):
         self._init_scene()
 
         self.ui.btn_new_grid.clicked.connect(self.new_grid_dialog)
+
+        self.ui.btn_run.clicked.connect(self.run_f)
         self.ui.btn_list_view.clicked.connect(self.list_view_dialog)
         self.ui.btn_zoom_plus.clicked.connect(self.zoom_plus)
         self.ui.btn_zoom_minus.clicked.connect(self.zoom_minus)
@@ -54,6 +59,13 @@ class GridViewer(QMainWindow):
         self.ui.view.setDragMode(QGraphicsView.NoDrag)
         self.ui.view.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
 
+        self.ui.cb_jobs.insertItems(0, self.job_names())
+        self.update_stack_job()
+        self.ui.btn_run_job.clicked.connect(self.run_selected_job)
+        self.ui.btn_job_next.clicked.connect(self.job_next)
+        self.ui.btn_job_previous.clicked.connect(self.job_previous)
+        self.ui.btn_job_validate.clicked.connect(self.job_validate)
+
     def make_grid(self, grid):
         QApplication.setOverrideCursor(Qt.WaitCursor)
         self.grid = grid
@@ -73,6 +85,8 @@ class GridViewer(QMainWindow):
             self.cells[(x, y)] = cell
 
         self.ui.view.centerOn(QPointF(0, 0))
+
+        self.grid = grid
         QApplication.restoreOverrideCursor()
 
     def add_to_selection(self, x, y):
@@ -131,3 +145,92 @@ class GridViewer(QMainWindow):
             pass
         elif event.key() == Qt.Key_Up:
             pass
+
+    def job_names(self):
+        with open("jobs.yml", "r") as f:
+            jobs = yaml.load(f)
+        return jobs.keys()
+
+    def run_selected_job(self):
+        self.job_index = 0
+        self.job_results = self.run_job(self.ui.cb_jobs.currentText())
+        self.update_stack_job()
+
+    def update_stack_job(self):
+        if not self.job_results:
+            self.ui.stack_job.setCurrentIndex(0)
+            return
+
+        self.ui.stack_job.setCurrentIndex(1)
+        self.ui.lbl_job_number.setText("Test {} / {}".format(self.job_index + 1, len(self.job_results)))
+
+        gridstr, callstr, result, ittime = self.job_results[self.job_index]
+
+        new_grid = eval(gridstr)
+        if not (new_grid.__class__ == self.grid.__class__ and
+                new_grid.width == self.grid.width and
+                new_grid.height == self.grid.height):
+            self.make_grid(new_grid)
+
+        self.ui.txt_job_run.setText(callstr)
+        self.update_selected_cells(result)
+
+        saved = self.saved_result_for(callstr)
+        if saved:
+            self.ui.lbl_job_exectime.setText("Exec. in {0:.2f} ms. / Saved: {1:.2f} ms. / Same result: {2:}".format(ittime, saved[3], str(result) == saved[2]))
+        else:
+            self.ui.lbl_job_exectime.setText("Exec. in {0:.2f} ms.".format(ittime))
+
+    def job_next(self):
+        if self.job_index < (len(self.job_results) - 1):
+            self.job_index += 1
+            self.update_stack_job()
+
+    def job_previous(self):
+        if self.job_index > 0:
+            self.job_index -= 1
+            self.update_stack_job()
+
+    def run_job(self, job_name):
+        with open("jobs.yml", "r") as f:
+            jobs = yaml.load(f)
+        callstrings = [(gridstr, "{}.{}".format(gridstr, funcstr)) for gridstr, calls in jobs[job_name].items() for funcstr in calls]
+        return [(gridstr, callstr, eval(callstr), self.ittime(callstr)) for gridstr, callstr in callstrings]
+
+    def ittime(self, callstr):
+        """ returns the execution time in milli-seconds
+            callstr has to be a string
+            (ex: 'time.sleep(1)', which will return 1000)
+        """
+        number, t = 1, 0
+        while t < 10 ** 8:
+            t = timeit(lambda: eval(callstr), number=number)
+            if t >= 0.001:
+                return 1000 * t / number
+            number *= 10
+        else:
+            return -1
+
+    def saved_results(self):
+        try:
+            with open("results.yml", "r") as f:
+                data = yaml.load(f)
+            return dict(data)
+        except (FileNotFoundError, TypeError):
+            return {}
+
+    def saved_result_for(self, callstr):
+        try:
+            return tuple(self.saved_results()[callstr])
+        except (TypeError, KeyError):
+            return None
+
+    def job_validate(self):
+        gridstr, callstr, result, ittime = self.job_results[self.job_index]
+        data = self.saved_results()
+
+        data[callstr] = [gridstr, callstr, str(result), ittime]
+
+        with open("results.yml", "w+") as f:
+            yaml.dump(data, f)
+        self.update_stack_job()
