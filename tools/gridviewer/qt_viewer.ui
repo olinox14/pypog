@@ -296,6 +296,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QToolButton" name="btn_zoom_view">
+          <property name="text">
+           <string>X</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QToolButton" name="btn_zoom_minus">
           <property name="text">
            <string>-</string>

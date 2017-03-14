@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'qt_viewer.ui'
 #
-# Created by: PyQt5 UI code generator 5.7.1
+# Created by: PyQt5 UI code generator 5.4.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -102,6 +102,8 @@ class Ui_window(object):
         font = QtGui.QFont()
         font.setStyleStrategy(QtGui.QFont.PreferAntialias)
         self.view.setFont(font)
+        self.view.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.view.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.view.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
         self.view.setResizeAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
         self.view.setViewportUpdateMode(QtWidgets.QGraphicsView.BoundingRectViewportUpdate)
@@ -116,6 +118,9 @@ class Ui_window(object):
         self.btn_zoom_plus = QtWidgets.QToolButton(self.centralwidget)
         self.btn_zoom_plus.setObjectName("btn_zoom_plus")
         self.horizontalLayout_4.addWidget(self.btn_zoom_plus)
+        self.btn_zoom_view = QtWidgets.QToolButton(self.centralwidget)
+        self.btn_zoom_view.setObjectName("btn_zoom_view")
+        self.horizontalLayout_4.addWidget(self.btn_zoom_view)
         self.btn_zoom_minus = QtWidgets.QToolButton(self.centralwidget)
         self.btn_zoom_minus.setObjectName("btn_zoom_minus")
         self.horizontalLayout_4.addWidget(self.btn_zoom_minus)
@@ -141,7 +146,7 @@ class Ui_window(object):
         self.actionQuitter.setObjectName("actionQuitter")
 
         self.retranslateUi(window)
-        self.stack_job.setCurrentIndex(1)
+        self.stack_job.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(window)
         window.setTabOrder(self.view, self.btn_new_grid)
         window.setTabOrder(self.btn_new_grid, self.cb_jobs)
@@ -165,6 +170,7 @@ class Ui_window(object):
         self.btn_job_validate.setText(_translate("window", "Validate"))
         self.label_3.setText(_translate("window", "Zoom"))
         self.btn_zoom_plus.setText(_translate("window", "+"))
+        self.btn_zoom_view.setText(_translate("window", "X"))
         self.btn_zoom_minus.setText(_translate("window", "-"))
         self.chk_displayCoords.setText(_translate("window", "Display coordinates"))
         self.actionQuitter.setText(_translate("window", "Quitter"))

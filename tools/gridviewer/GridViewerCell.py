@@ -31,13 +31,11 @@ class GridViewerCell(QGraphicsPolygonItem):
         self.label = QGraphicsSimpleTextItem("{}-{}".format(self.x, self.y), parent=self)
         self.label.setVisible(show_label)
 
-#         k = 0
-#         if (self.x % 2) != 0:
-#             k = 0.5
-#         if shape == geometry.FLAT_HEX:
-#             self.label.setPos(QPointF(((self.x * 0.866) + 0.2886) * scale, (self.y + k + 0.5) * scale))
-#         else:
-#             self.label.setPos(QPointF(self.x * scale, self.y * scale))
+        if len(points) == 6:
+            k = 0.5 if (self.x % 2) != 0 else 0
+            self.label.setPos(QPointF(((self.x * 0.866) + 0.2886) * 120, (self.y + k + 0.5) * 120))
+        else:
+            self.label.setPos(QPointF(self.x * 120, self.y * 120))
 
         font = QFont()
         font.setPointSize(20)

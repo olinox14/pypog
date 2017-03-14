@@ -5,8 +5,8 @@ Created on 8 mars 2017
 '''
 from PyQt5.Qt import QDialog
 
-from qt_new_grid import Ui_window
 from pypog.grid_objects import FHexGrid, SquareGrid
+from qt_new_grid import Ui_window
 
 class GridDialogBox(QDialog):
     def __init__(self, parent=None):
@@ -23,7 +23,7 @@ class GridDialogBox(QDialog):
         self.ui.btn_create.clicked.connect(self.ok)
 
     def ok(self):
-        cls = FHexGrid if self.ui.opt_hex else SquareGrid
+        cls = FHexGrid if self.ui.opt_hex.isChecked() else SquareGrid
         self._obj = cls(self.ui.spb_width.value(), self.ui.spb_height.value())
         self.done(1)
 

@@ -4,7 +4,8 @@
     ** By Cro-Ki l@b, 2017 **
 '''
 from pypog.geometry_objects import BaseGeometry, FHexGeometry, SquareGeometry, \
-    BoundingRect
+    BoundingRect, HexGeometry
+
 
 class BaseGrid(object):
     """ Base class for grids
@@ -81,6 +82,16 @@ class BaseGrid(object):
         for item in ((x, y) for x in range(self.width) for y in range(self.height)):
             yield item
 
+    def __getitem__(self, index):
+        """ get the coordinates at the given index """
+        if not (-1 * len(self)) < index < len(self):
+            raise IndexError("index is out of the grid's range (given: {})".format(index))
+        if index < 0:
+            index += len(self)
+        y = index // self.width
+        x = index % self.width
+        return x, y
+
     # geometrical algorithms
     def neighbors(self, *args):
         return self.geometry.neighbors(*args, br=self.br)
@@ -115,8 +126,12 @@ class SquareGrid(BaseGrid):
     def __init__(self, *args, **kwargs):
         BaseGrid.__init__(self, *args, **kwargs)
 
-class FHexGrid(BaseGrid):
+class HexGrid(BaseGrid):
+    """ Base class for hexagonal grid objects """
+    geometry = HexGeometry
+
+class FHexGrid(HexGrid):
     """ Flat-hexagonal grid object """
     geometry = FHexGeometry
     def __init__(self, *args, **kwargs):
-        BaseGrid.__init__(self, *args, **kwargs)
+        HexGrid.__init__(self, *args, **kwargs)

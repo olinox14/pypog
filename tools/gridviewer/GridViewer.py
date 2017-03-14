@@ -5,8 +5,9 @@
 
 from timeit import timeit
 
-from PyQt5.Qt import Qt, QEvent
+from PyQt5.Qt import Qt, QEvent, QRectF
 from PyQt5.QtCore import QPointF
+from PyQt5.QtGui import QPolygonF
 from PyQt5.QtWidgets import QMainWindow, \
     QApplication, QGraphicsScene, QGraphicsView
 import yaml
@@ -14,7 +15,7 @@ import yaml
 from GridDialogBox import GridDialogBox
 from GridViewerCell import GridViewerCell
 from ListViewDialog import ListViewDialog
-from pypog.grid_objects import SquareGrid, FHexGrid
+from pypog.grid_objects import SquareGrid, FHexGrid, HexGrid, BaseGrid
 from qt_viewer import Ui_window
 
 
@@ -26,43 +27,33 @@ class GridViewer(QMainWindow):
         self.selection = []
         self.job_index = 0
         self.job_results = []
+        self.grid = BaseGrid(1, 1)
         self.createWidgets()
 
+    # ## GUI related methods
     def createWidgets(self):
         self.ui = Ui_window()
         self.ui.setupUi(self)
 
-        self._init_scene()
+        self.ui.btn_new_grid.clicked.connect(self.show_new_grid_dialog)
 
-        self.ui.btn_new_grid.clicked.connect(self.new_grid_dialog)
-
-        self.ui.btn_list_view.clicked.connect(self.list_view_dialog)
+        self.ui.btn_list_view.clicked.connect(self.show_list_view_dialog)
         self.ui.btn_zoom_plus.clicked.connect(self.zoom_plus)
         self.ui.btn_zoom_minus.clicked.connect(self.zoom_minus)
+        self.ui.btn_zoom_view.clicked.connect(self.fit_in_view)
         self.ui.chk_displayCoords.toggled.connect(self.update_cell_labels)
-
-        self.ui.cb_jobs.insertItems(0, self.job_names())
-        self.update_stack_job()
-        self.ui.btn_run_job.clicked.connect(self.run_selected_job)
-        self.ui.btn_job_next.clicked.connect(self.job_next)
-        self.ui.btn_job_previous.clicked.connect(self.job_previous)
-        self.ui.btn_job_validate.clicked.connect(self.job_validate)
-
-        self.make_grid(SquareGrid(30, 30))
-
-    def _init_scene(self):
-        self._scene = QGraphicsScene()
-        self._scene.setItemIndexMethod(QGraphicsScene.BspTreeIndex)
-
-        self.ui.view.setScene(self._scene)
-        self.ui.view.scale(0.5, 0.5)
-        self.ui.view.centerOn(QPointF(0, 0))
+        self.ui.btn_run_job.clicked.connect(self.run_selected_job_clicked)
+        self.ui.btn_job_next.clicked.connect(self.job_next_clicked)
+        self.ui.btn_job_previous.clicked.connect(self.job_previous_clicked)
+        self.ui.btn_job_validate.clicked.connect(self.job_validate_clicked)
 
         self.ui.view.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
         self.ui.view.setDragMode(QGraphicsView.NoDrag)
         self.ui.view.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-
         self.ui.view.viewport().installEventFilter(self)
+
+        self.ui.cb_jobs.insertItems(0, self.get_job_names())
+        self._update_stack_job()
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.Wheel:
@@ -73,16 +64,33 @@ class GridViewer(QMainWindow):
             return True
         return False
 
+    def fit_in_view(self):
+        self.ui.view.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
+
+    def zoom_plus(self):
+        self.ui.view.scale(1.2, 1.2)
+
+    def zoom_minus(self):
+        self.ui.view.scale(0.8, 0.8)
+
+    # ## Grid and selection
     def make_grid(self, grid):
         QApplication.setOverrideCursor(Qt.WaitCursor)
+
         self.grid = grid
         self.cells = {}
         self.selection = []
 
-        self._scene.clear()
+        self._scene = QGraphicsScene()
+        self._scene.setItemIndexMethod(QGraphicsScene.BspTreeIndex)
 
         if len(grid) > 10000:
             self.ui.chk_displayCoords.setChecked(False)
+
+        scale = 120
+        margin = 2 * scale
+        ratio = 0.866 if isinstance(grid, HexGrid) else 1
+        self._scene.setSceneRect(0 - margin, 0 - margin, (ratio * scale * (grid.width + 2)) + margin, (scale * (grid.height + 2)) + margin)
 
         for x, y in grid:
             cell = GridViewerCell(self, x, y)
@@ -91,7 +99,10 @@ class GridViewer(QMainWindow):
             self._scene.addItem(cell)
             self.cells[(x, y)] = cell
 
+        self.ui.view.setScene(self._scene)
+
         self.ui.view.centerOn(QPointF(0, 0))
+        self.fit_in_view()
 
         self.grid = grid
         QApplication.restoreOverrideCursor()
@@ -119,31 +130,37 @@ class GridViewer(QMainWindow):
         for cell in self.cells.values():
             cell.show_label(bool(self.ui.chk_displayCoords.isChecked()))
 
-    def zoom_plus(self):
-        self.ui.view.scale(1.1, 1.1)
-
-    def zoom_minus(self):
-        self.ui.view.scale(0.9, 0.9)
-
-    def new_grid_dialog(self):
+    # ## Dialogs
+    def show_new_grid_dialog(self):
         grid = GridDialogBox.get()
-        self.make_grid(grid)
+        if grid:
+            self.make_grid(grid)
 
-    def list_view_dialog(self):
+    def show_list_view_dialog(self):
         new_lst = ListViewDialog(self.selection).exec_()
         self.update_selected_cells(new_lst)
 
-    def job_names(self):
-        with open("jobs.yml", "r") as f:
-            jobs = yaml.load(f)
-        return jobs.keys()
-
-    def run_selected_job(self):
+    # ## IT Jobs
+    def run_selected_job_clicked(self):
         self.job_index = 0
         self.job_results = self.run_job(self.ui.cb_jobs.currentText())
-        self.update_stack_job()
+        self._update_stack_job()
 
-    def update_stack_job(self):
+    def job_next_clicked(self):
+        if self.job_index < (len(self.job_results) - 1):
+            self.job_index += 1
+            self._update_stack_job()
+
+    def job_previous_clicked(self):
+        if self.job_index > 0:
+            self.job_index -= 1
+            self._update_stack_job()
+
+    def job_validate_clicked(self):
+        self.save_result_for(*self.job_results[self.job_index])
+        self._update_stack_job()
+
+    def _update_stack_job(self):
         if not self.job_results:
             self.ui.stack_job.setCurrentIndex(0)
             return
@@ -168,23 +185,21 @@ class GridViewer(QMainWindow):
         else:
             self.ui.lbl_job_exectime.setText("Exec. in {0:.2f} ms.".format(ittime))
 
-    def job_next(self):
-        if self.job_index < (len(self.job_results) - 1):
-            self.job_index += 1
-            self.update_stack_job()
+    @staticmethod
+    def get_job_names():
+        with open("jobs.yml", "r") as f:
+            jobs = yaml.load(f)
+        return jobs.keys()
 
-    def job_previous(self):
-        if self.job_index > 0:
-            self.job_index -= 1
-            self.update_stack_job()
-
-    def run_job(self, job_name):
+    @staticmethod
+    def run_job(job_name):
         with open("jobs.yml", "r") as f:
             jobs = yaml.load(f)
         callstrings = [(gridstr, "{}.{}".format(gridstr, funcstr)) for gridstr, calls in jobs[job_name].items() for funcstr in calls]
-        return [(gridstr, callstr, eval(callstr), self.ittime(callstr)) for gridstr, callstr in callstrings]
+        return [(gridstr, callstr, eval(callstr), GridViewer.ittime(callstr)) for gridstr, callstr in callstrings]
 
-    def ittime(self, callstr):
+    @staticmethod
+    def ittime(callstr):
         """ returns the execution time in milli-seconds
             callstr has to be a string
             (ex: 'time.sleep(1)', which will return 1000)
@@ -198,7 +213,8 @@ class GridViewer(QMainWindow):
         else:
             return -1
 
-    def saved_results(self):
+    @staticmethod
+    def saved_results():
         try:
             with open("results.yml", "r") as f:
                 data = yaml.load(f)
@@ -206,18 +222,17 @@ class GridViewer(QMainWindow):
         except (FileNotFoundError, TypeError):
             return {}
 
-    def saved_result_for(self, callstr):
+    @staticmethod
+    def saved_result_for(callstr):
         try:
-            return tuple(self.saved_results()[callstr])
+            return tuple(GridViewer.saved_results()[callstr])
         except (TypeError, KeyError):
             return None
 
-    def job_validate(self):
-        gridstr, callstr, result, ittime = self.job_results[self.job_index]
-        data = self.saved_results()
-
+    @staticmethod
+    def save_result(gridstr, callstr, result, ittime):
+        data = GridViewer.saved_results()
         data[callstr] = [gridstr, callstr, str(result), ittime]
-
         with open("results.yml", "w+") as f:
             yaml.dump(data, f)
-        self.update_stack_job()
+
