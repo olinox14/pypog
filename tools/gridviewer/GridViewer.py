@@ -5,9 +5,8 @@
 
 from timeit import timeit
 
-from PyQt5.Qt import Qt, QEvent, QRectF
+from PyQt5.Qt import Qt, QEvent
 from PyQt5.QtCore import QPointF
-from PyQt5.QtGui import QPolygonF
 from PyQt5.QtWidgets import QMainWindow, \
     QApplication, QGraphicsScene, QGraphicsView
 import yaml

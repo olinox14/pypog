@@ -3,3 +3,4 @@
 .pydevproject
 htmlcov/
 .coverage
+.settings
