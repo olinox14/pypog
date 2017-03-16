@@ -6,11 +6,16 @@
 from math import sqrt
 import math
 
+try:
+    inf = math.inf
+except AttributeError:
+    # backward compatibility for python < 3.5
+    inf = float("inf")
 
 class BoundingRect(tuple):
     """ Bounding rectangle defined by a top-left (xmin, ymin) point
      and a bottom-right (xmax, ymax) point """
-    def __new__(self, xmin, ymin, xmax, ymax):
+    def __new__(self, xmin=-inf, ymin=-inf, xmax=inf, ymax=inf):
         return tuple.__new__(self, (xmin, ymin, xmax, ymax))
 
     @classmethod
@@ -55,13 +60,6 @@ class BoundingRect(tuple):
     @property
     def height(self):
         return self.ymax - self.ymin + 1
-
-class IBoundingRect(BoundingRect):
-    """ Infinite bounding rectangle
-    >> '(x, y) in IBoundingRect()' is always True"""
-    def __new__(self):
-        return BoundingRect.__new__(self, -math.inf, -math.inf, math.inf, math.inf)
-
 
 class BaseGeometry:
     """ Base class for geometry classes
@@ -113,16 +111,16 @@ class BaseGeometry:
 
     # geometrical algorithms
     @classmethod
-    def neighbors(cls, x, y, br=IBoundingRect()):
+    def neighbors(cls, x, y, br=BoundingRect()):
         """ returns a list of the neighbors of (x, y) """
         raise NotImplementedError("this method is abstract and should be reimplemented in subclasses")
 
     @classmethod
-    def line(cls, x1, y1, x2, y2, br=IBoundingRect()):
+    def line(cls, x1, y1, x2, y2, br=BoundingRect()):
         raise NotImplementedError("this method is abstract and should be reimplemented in subclasses")
 
     @classmethod
-    def line3d(cls, x1, y1, z1, x2, y2, z2, br=IBoundingRect()):
+    def line3d(cls, x1, y1, z1, x2, y2, z2, br=BoundingRect()):
         """ returns a line from (x1 ,y1, z1) to (x2, y2, z2)
         as a list of (x, y, z) coordinates """
         cls.assertCoordinates((z1, z2))
@@ -134,7 +132,7 @@ class BaseGeometry:
             return [(hoLine[d][0], hoLine[d][1], z) for d, z in ligneZ]
 
     @classmethod
-    def zone(cls, x, y, radius, br=IBoundingRect()):
+    def zone(cls, x, y, radius, br=BoundingRect()):
         """ returns the list of the coordinates of the cells in a zone around (x, y)
         """
         cls.assertCoordinates((x, y))
@@ -149,13 +147,13 @@ class BaseGeometry:
         return list(buffer)
 
     @classmethod
-    def triangle(cls, xa, ya, xh, yh, iAngle, br=IBoundingRect()):
+    def triangle(cls, xa, ya, xh, yh, iAngle, br=BoundingRect()):
         """ return the list of the (x, y) coordinates in a triangle
         with (xa, ya) apex and (xh, yh) middle of the base """
         raise NotImplementedError("this method is abstract and should be reimplemented in subclasses")
 
     @classmethod
-    def triangle3d(self, xa, ya, za, xh, yh, zh, iAngle, br=IBoundingRect()):
+    def triangle3d(self, xa, ya, za, xh, yh, zh, iAngle, br=BoundingRect()):
         """Returns a list of (x, y, z) coordinates in a 3d-cone
         A is the top of the cone, H if the center of the base
 
@@ -169,13 +167,13 @@ class BaseGeometry:
         raise NotImplementedError("this method is abstract and should be reimplemented in subclasses")
 
     @classmethod
-    def rectangle(cls, x1, y1, x2, y2, br=IBoundingRect()):
+    def rectangle(cls, x1, y1, x2, y2, br=BoundingRect()):
         """return a list of cells in a rectangle between (X1, Y1), (X2, Y2)"""
         xmin, ymin, xmax, ymax = cls._bounding_rect((x1, y1), (x2, y2))
         return [(x, y) for x in range(xmin, xmax + 1) for y in range(ymin, ymax + 1)]
 
     @classmethod
-    def hollow_rectangle(cls, x1, y1, x2, y2, br=IBoundingRect()):
+    def hollow_rectangle(cls, x1, y1, x2, y2, br=BoundingRect()):
         """return a list of cells composing the sides of the rectangle between (X1, Y1), (X2, Y2)"""
         xmin, ymin, xmax, ymax = cls._bounding_rect((x1, y1), (x2, y2))
         if (xmin, ymin) == (xmax, ymax):
@@ -186,7 +184,7 @@ class BaseGeometry:
                [(xmin, y) for y in range(ymax, ymin, -1)]
 
     @classmethod
-    def rotate(cls, center, coordinates, rotations, br=IBoundingRect()):
+    def rotate(cls, center, coordinates, rotations, br=BoundingRect()):
         """ return the 'coordinates' list of (x, y) coordinates
         after a rotation of 'rotations' times around the (x, y) center """
         raise NotImplementedError("this method is abstract and should be reimplemented in subclasses")
@@ -212,7 +210,7 @@ class SquareGeometry(BaseGeometry):
         cls._nodiags = active
 
     @classmethod
-    def neighbors(cls, x, y, br=IBoundingRect()):
+    def neighbors(cls, x, y, br=BoundingRect()):
         """ reimplemented from BaseGeometry._neighbors """
         cls.assertCoordinates((x, y))
 
@@ -226,7 +224,7 @@ class SquareGeometry(BaseGeometry):
                     (x - 1, y + 1), (x, y + 1), (x + 1, y + 1)]
 
     @classmethod
-    def line(cls, x1, y1, x2, y2, br=IBoundingRect()):
+    def line(cls, x1, y1, x2, y2, br=BoundingRect()):
         """ reimplemented from BaseGeometry.line
         Implementation of bresenham's algorithm
         """
@@ -266,7 +264,7 @@ class SquareGeometry(BaseGeometry):
         return result
 
     @classmethod
-    def triangle(cls, xa, ya, xh, yh, iAngle, br=IBoundingRect()):
+    def triangle(cls, xa, ya, xh, yh, iAngle, br=BoundingRect()):
         """ reimplemented from BaseGeometry.triangle """
         cls.assertCoordinates((xa, ya), (xh, yh))
         cls._assertValidAngle(iAngle)
@@ -320,7 +318,7 @@ class SquareGeometry(BaseGeometry):
         return result
 
     @classmethod
-    def triangle3d(cls, xa, ya, za, xh, yh, zh, iAngle, br=IBoundingRect()):
+    def triangle3d(cls, xa, ya, za, xh, yh, zh, iAngle, br=BoundingRect()):
         """ reimplemented from BaseGeometry.triangle3d """
         cls.assertCoordinates((za, zh))
         flat_triangle = cls.triangle(xa, ya, xh, yh, iAngle)
@@ -351,7 +349,7 @@ class SquareGeometry(BaseGeometry):
 
 
     @classmethod
-    def rotate(cls, center, coordinates, rotations, br=IBoundingRect()):
+    def rotate(cls, center, coordinates, rotations, br=BoundingRect()):
         """ reimplemented from BaseGeometry.rotate """
         cls.assertCoordinates(center, *coordinates)
 
@@ -435,14 +433,14 @@ class FHexGeometry(HexGeometry):
                 ]
 
     @classmethod
-    def neighbors(cls, x, y, br=IBoundingRect()):
+    def neighbors(cls, x, y, br=BoundingRect()):
         if x % 2 == 0:
             return [(x, y - 1), (x + 1, y - 1), (x + 1, y), (x, y + 1), (x - 1, y), (x - 1, y - 1)]
         else:
             return [(x, y - 1), (x + 1, y), (x + 1, y + 1), (x, y + 1), (x - 1, y + 1), (x - 1, y)]
 
     @classmethod
-    def line(cls, x1, y1, x2, y2, br=IBoundingRect()):
+    def line(cls, x1, y1, x2, y2, br=BoundingRect()):
         """ reimplemented from BaseGeometry.line
         Implementation of bresenham's algorithm """
         cls.assertCoordinates((x1, y1), (x2, y2))
@@ -542,7 +540,7 @@ class FHexGeometry(HexGeometry):
         return result
 
     @classmethod
-    def triangle(cls, xa, ya, xh, yh, iAngle, br=IBoundingRect()):
+    def triangle(cls, xa, ya, xh, yh, iAngle, br=BoundingRect()):
         """ reimplemented from BaseGeometry.triangle """
         cls.assertCoordinates((xa, ya), (xh, yh))
         cls._assertValidAngle(iAngle)
@@ -604,7 +602,7 @@ class FHexGeometry(HexGeometry):
         return result
 
     @classmethod
-    def triangle3d(cls, xa, ya, za, xh, yh, zh, iAngle, br=IBoundingRect()):
+    def triangle3d(cls, xa, ya, za, xh, yh, zh, iAngle, br=BoundingRect()):
         """ reimplemented from BaseGeometry.triangle3d """
         cls.assertCoordinates((za, zh))
         flat_triangle = cls.triangle(xa, ya, xh, yh, iAngle)
@@ -640,7 +638,7 @@ class FHexGeometry(HexGeometry):
         return result
 
     @classmethod
-    def rotate(cls, center, coordinates, rotations, br=IBoundingRect()):
+    def rotate(cls, center, coordinates, rotations, br=BoundingRect()):
         """ reimplemented from BaseGeometry.rotate """
         cls.assertCoordinates(center, *coordinates)
 
