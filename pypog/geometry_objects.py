@@ -189,6 +189,12 @@ class BaseGeometry:
         after a rotation of 'rotations' times around the (x, y) center """
         raise NotImplementedError("this method is abstract and should be reimplemented in subclasses")
 
+    @staticmethod
+    def square_distance(x1, y1, x2, y2):
+        """ distance between 1 and 2 (run faster than a standard distance) """
+        return (x1 - x2) ** 2 + (y1 - y2) ** 2
+
+
 class SquareGeometry(BaseGeometry):
     """ Geometry on square grids """
     _nodiags = False
@@ -370,25 +376,22 @@ class HexGeometry(BaseGeometry):
     This class should be overridden """
 
     @staticmethod
-    def cv_cube_off(xu, yu, zu):
+    def from_cubic(xu, yu, zu):
         """convert cubic coordinates (xu, yu, zu) in standards coordinates (x, y) [offset]"""
-        y = int(xu + (zu - (zu & 1)) / 2)
-        x = zu
-        return (x, y)
+        return (zu, int(xu + (zu - (zu & 1)) / 2))
 
     @staticmethod
-    def cv_off_cube(x, y):
+    def to_cubic(x, y):
         """converts standards coordinates (x, y) [offset] in cubic coordinates (xu, yu, zu)"""
         zu = x
         xu = int(y - (x - (x & 1)) / 2)
         yu = int(-xu - zu)
         return (xu, yu, zu)
 
-    # > unused
     @staticmethod
     def cube_round(x, y, z):
-        """returns the nearest cell (in cubic coords)
-        x, y, z can be floating numbers, no problem."""
+        """returns the nearest (xu, yu, zu) position in cubic coordinates
+        (x, y, z can be floating numbers)"""
         rx, ry, rz = round(x), round(y), round(z)
         x_diff, y_diff, z_diff = abs(rx - x), abs(ry - y), abs(rz - z)
         if x_diff > y_diff and x_diff > z_diff:
@@ -399,21 +402,16 @@ class HexGeometry(BaseGeometry):
             rz = -rx - ry
         return (rx, ry, rz)
 
-    # > unused
     @staticmethod
-    def hex_distance_cube(xa, ya, za, xb, yb, zb):
-        """returns the manhattan distance between the two cells"""
-        return max(abs(xa - xb), abs(ya - yb), abs(za - zb))
-
-    # > unused
-    @staticmethod
-    def distance_off(xa, ya, xb, yb):
-        """ distance between A and B (offset coordinates)"""
-        # 10 times quicker if no conversion...
-        xua, yua, zua = HexGeometry.cv_off_cube(xa, ya)
-        xub, yub, zub = HexGeometry.cv_off_cube(xb, yb)
-        return max(abs(xua - xub), abs(yua - yub), abs(zua - zub))
-
+    def cubic_distance(*args):
+        """returns the manhattan distance between the two cells,
+        using cubic coordinates"""
+        try:
+            xa, ya, za, xb, yb, zb = args
+            return max(abs(xa - xb), abs(ya - yb), abs(za - zb))
+        except ValueError:
+            xa, ya, xb, yb = args
+            HexGeometry.cubic_distance(*HexGeometry.to_cubic(xa, ya), *HexGeometry.to_cubic(xb, yb))
 
 class FHexGeometry(HexGeometry):
     """ Flat-hexagonal grid object """

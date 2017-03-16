@@ -4,11 +4,10 @@
 
     ** By Cro-Ki l@b, 2017 **
 '''
-from math import inf
 import unittest
 
 from pypog.geometry_objects import FHexGeometry, SquareGeometry, BaseGeometry, \
-    BoundingRect
+    BoundingRect, inf
 
 
 class Test(unittest.TestCase):

@@ -31,55 +31,32 @@
     ** By Cro-Ki l@b, 2017 **
 '''
 from pypog.geometry_objects import HexGeometry
+from pypog.grid_objects import BaseGrid
 
-def distance(coord1, coord2):
-    """distance between 1 and 2"""
-    x1, y1 = coord1
-    xu1, yu1, zu1 = HexGeometry.cv_off_cube(x1, y1)
-    x2, y2 = coord2
-    xu2, yu2, zu2 = HexGeometry.cv_off_cube(x2, y2)
-    return max(abs(xu1 - xu2), abs(yu1 - yu2), abs(zu1 - zu2))
-
-def square_distance(coord1, coord2):
-    """distance between 1 and 2 (quicker than distance)"""
-    return (coord1[0] - coord2[0]) ** 2 + (coord1[1] - coord2[1]) ** 2
-
-class Path(object):
-    def __init__(self):
-        self._cells = []
-        self._costs = []
-        self._modes = []
-        self._val = []
+class NoPathFound(Exception):
+    pass
 
 class Node():
-    def __init__(self, coord):
-        self.parent = None  # coords of the previous node
-        self.coord = coord
-        self.k_dep = 1
-        self.g_cost = 0
-        self.h_cost = 0
-        self.cost = 0
-
-    def create(self, parent, target, k_dep):
+    target = None
+    def __init__(self, x, y, parent=None):
+        self._x = x
+        self._y = y
         self.parent = parent
-        self.k_dep = k_dep
-        self.h_cost = self.distance(self.coord, target)
-        self.g_cost = self.parent.g_cost + self.k_dep
-        self.cout = self.g_cost + self.h_cost
+        self.gcost = 0
+        self.hcost = 0
 
-    def parent(self):
-        return self.parent
+    def compute(self, moving_cost):
+        # the manhattan distance to the final target
+        self.hcost = HexGeometry.cubic_distance(self._x, self._y, *self.target)
 
-    def distance(self, coord1, coord2):
-        """distance (en cases) entre deux coordonnees"""
-        x1, y1 = coord1
-        x2, y2 = coord2
-        return HexGeometry.distance_off(x1, y1, x2, y2)
+        # the cumulated moving cost of the path that lead here
+        self.gcost = self.parent.g_cost + self.moving_cost
 
-def _default_moving_cost_function(from_coord, to_coord):
-    return 1
+    @property
+    def cost(self):
+        return self.g_cost + self.h_cost
 
-def path(grid, origin, target, moving_cost_function=None):
+def path(grid, from_x, from_y, to_x, to_y):
     """return the shorter path from origin to target on the Grid object
     the path is estimated following:
     - geometry of the grid
@@ -88,55 +65,69 @@ def path(grid, origin, target, moving_cost_function=None):
 
     origin and target should be Cell objects
     """
-    if moving_cost_function == None:
-        moving_cost_function = _default_moving_cost_function
+    if not isinstance(grid, BaseGrid):
+        raise TypeError("grid has to be an instance of BaseGrid (given: {})".format(type(grid).__name__))
 
-    nodes = {}  # coord: node
+    nodes = {}
 
-    nO = Node(origin)
-    nO.parent = None
-    nO.cost = 0
+    # pass target to the Node class:
+    Node.target = (to_x, to_y)
 
-#     kept = [nO]
-    path = []
-    position = nO
+    # origin node
+    nO = Node(from_x, from_y)
 
-    while position.coord != target:
+    # current position
+    pos = nO
 
-        # we maybe could avoid the re-computing by storing the neighbours coordinates?
-        neighbours = grid.cell(position.coord).neighbours
+    while (pos.x, pos.y) != (to_x, to_y):
 
-        for coord in [coord for coord in neighbours if not coord in nodes.keys()]:
+        # lists the neighbors of the current position
+        neighbours = grid.neighbors(pos.x, pos.y)
 
-                cost = moving_cost_function(position.coord, coord)
-                if cost < 0:
+
+
+        # removes the coordinates already checked
+        neighbours = set(neighbours) - set(nodes.keys())
+
+        for x, y in neighbours:
+
+            # use the grid's movingcost() function to get the moving cost from position to (x, y)
+            cost = grid._movingcost(pos.x, pos.y, x, y)
+
+            # cost is negative, can not go there
+            if cost < 0:
+                continue
+
+            # instanciate the new node with 'pos' as parent
+            node = Node(x, y, pos)
+            node.compute(cost)
+
+            # check if there is already a node with a lower cost
+            try:
+                if nodes[(x, y)].cost <= node.cost:
                     continue
+            except KeyError:
+                pass
 
-                node = Node(coord)
+            # memorize the node
+            nodes[(x, y)] = node
 
-                node.create(position, target, cost)
+        # no new nodes were found
+        if not nodes:
+            raise NoPathFound()
 
-                try:
-                    existing = nodes[coord]
-                    if existing.cost <= node.cost:
-                        continue
-                except KeyError:
-                    pass
-
-                nodes[coord] = node
-
-        if len(nodes) == 0:
-            print("No path found")
-            return []
-
+        # retrieves the lowest cost
         best = min(nodes.values(), key=lambda x: x.cost)
+
         del nodes[best.coord]
-        position = best
+        pos = best
 
     else:
+
         # build the result
-        while position.coord != origin:
-            path.insert(0, (position.coord, position.k_dep))
-            position = position.parent
+        path = []
+        while (pos.x, pos.y) != (from_x, from_y):
+            path.insert(0, (pos.x, pos.y, pos.k_dep))
+            pos = pos.parent
 
     return path
