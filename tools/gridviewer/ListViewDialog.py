@@ -5,8 +5,9 @@ Created on 8 mars 2017
 '''
 from PyQt5.Qt import QDialog
 
-from qt_listview import Ui_window
 from pypog.geometry_objects import BaseGeometry
+from qt_listview import Ui_window
+
 
 class ListViewDialog(QDialog):
     def __init__(self, lst, parent=None):
@@ -28,8 +29,12 @@ class ListViewDialog(QDialog):
         self.ui.btn_ok.clicked.connect(self.ok)
 
     def ok(self):
-        self._lst = list(eval(self.ui.txt_list.toPlainText()))
-        self.done(1)
+        try:
+            self._lst = list(eval(self.ui.txt_list.toPlainText()))
+            BaseGeometry.assertCoordinates(*self._lst)
+            self.done(1)
+        except NameError:
+            raise ValueError("not a list of (x, y) coordinates")
 
     def cancel(self):
         self.done(0)

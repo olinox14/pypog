@@ -34,6 +34,7 @@ class GridViewer(QMainWindow):
         self.ui = Ui_window()
         self.ui.setupUi(self)
 
+
         self.ui.btn_new_grid.clicked.connect(self.show_new_grid_dialog)
 
         self.ui.btn_list_view.clicked.connect(self.show_list_view_dialog)
@@ -137,7 +138,10 @@ class GridViewer(QMainWindow):
 
     def show_list_view_dialog(self):
         new_lst = ListViewDialog(self.selection).exec_()
-        self.update_selected_cells(new_lst)
+        try:
+            self.update_selected_cells(new_lst)
+        except KeyError:
+            raise KeyError("Can not select coordinates out of the current grid")
 
     # ## IT Jobs
     def run_selected_job_clicked(self):
