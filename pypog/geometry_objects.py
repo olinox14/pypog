@@ -8,7 +8,7 @@ import math
 
 try:
     inf = math.inf
-except AttributeError:
+except ImportError:
     # backward compatibility for python < 3.5
     inf = float("inf")
 

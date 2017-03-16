@@ -162,8 +162,7 @@ class PaintPotPainter(BasePainter):
         BasePainter.__init__(self, *args)
         self._comp_pointer = (lambda x: False)
 
-    def start(self, x0, y0, comp_pointer):
-        self._comp_pointer = comp_pointer
+    def start(self, x0, y0):
         BasePainter.start(self, x0, y0)
 
     def update(self, *args):
@@ -184,7 +183,7 @@ class PaintPotPainter(BasePainter):
         buffer = set(self._grid.neighbours(*self._origin))
         while buffer:
             pos = buffer.pop()
-            if self._comp_pointer(*self._origin, *pos):
+            if self._grid._compare_cells(*self._origin, *pos):
                 current_selection.add(pos)
                 buffer |= (set(self._grid.neighbours(*pos)) - current_selection)
 

@@ -5,6 +5,7 @@
 '''
 from pypog.geometry_objects import BaseGeometry, FHexGeometry, SquareGeometry, \
     BoundingRect, HexGeometry
+from pypog.painter_objects import LinePainter
 
 
 class BaseGrid(object):
@@ -119,6 +120,14 @@ class BaseGrid(object):
 
     def rotate(self, *args):
         return self.geometry.rotate(*args, br=self.br)
+
+    # painting
+    def _compare_cells(self, x1, y1, x2, y2):
+        return True
+
+    # pathfinding
+    def _movingcost(self, from_x, from_y, to_x, to_y):
+        return 1
 
 class SquareGrid(BaseGrid):
     """ Square grid object """

@@ -8,7 +8,7 @@ from math import inf
 import unittest
 
 from pypog.geometry_objects import FHexGeometry, SquareGeometry, BaseGeometry, \
-    BoundingRect, IBoundingRect
+    BoundingRect
 
 
 class Test(unittest.TestCase):
@@ -29,7 +29,7 @@ class Test(unittest.TestCase):
         self.assertTrue((5, 5) in br)
         self.assertFalse((15, 15) in br)
 
-        ibr = IBoundingRect()
+        ibr = BoundingRect()
         self.assertTrue((5, 5) in ibr)
         self.assertTrue((15, 15) in ibr)
         self.assertTrue((10000, 10000) in ibr)

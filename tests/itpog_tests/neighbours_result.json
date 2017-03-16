@@ -1,1 +1,0 @@
-[{"call": "geometry.fhex2_neighbours(*[0, 0])", "result": [[0, -1], [1, -1], [1, 0], [0, 1], [-1, 0], [-1, -1]], "exectime": 0.014875455914448195, "cell_shape": 61}, {"call": "geometry.squ2_neighbours(*[0, 0])", "result": [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]], "exectime": 0.015270075426026498, "cell_shape": 4}]

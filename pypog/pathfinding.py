@@ -30,15 +30,14 @@
 
     ** By Cro-Ki l@b, 2017 **
 '''
-from pypog.gridlib import _HexGrid
-
+from pypog.geometry_objects import HexGeometry
 
 def distance(coord1, coord2):
     """distance between 1 and 2"""
     x1, y1 = coord1
-    xu1, yu1, zu1 = _HexGrid.cv_off_cube(x1, y1)
+    xu1, yu1, zu1 = HexGeometry.cv_off_cube(x1, y1)
     x2, y2 = coord2
-    xu2, yu2, zu2 = _HexGrid.cv_off_cube(x2, y2)
+    xu2, yu2, zu2 = HexGeometry.cv_off_cube(x2, y2)
     return max(abs(xu1 - xu2), abs(yu1 - yu2), abs(zu1 - zu2))
 
 def square_distance(coord1, coord2):
@@ -75,7 +74,7 @@ class Node():
         """distance (en cases) entre deux coordonnees"""
         x1, y1 = coord1
         x2, y2 = coord2
-        return _HexGrid.distance_off(x1, y1, x2, y2)
+        return HexGeometry.distance_off(x1, y1, x2, y2)
 
 def _default_moving_cost_function(from_coord, to_coord):
     return 1
