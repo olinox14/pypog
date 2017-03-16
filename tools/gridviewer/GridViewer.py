@@ -179,10 +179,10 @@ class GridViewer(QMainWindow):
         self.update_selected_cells(result)
 
         saved = self.saved_result_for(callstr)
+        msg = "Exec. in {0:.2f} ms.".format(ittime)
         if saved:
-            self.ui.lbl_job_exectime.setText("Exec. in {0:.2f} ms. / Saved: {1:.2f} ms. / Same result: {2:}".format(ittime, saved[3], str(result) == saved[2]))
-        else:
-            self.ui.lbl_job_exectime.setText("Exec. in {0:.2f} ms.".format(ittime))
+            msg += " (saved: {1:.2f} ms., same result: {2:})".format(saved[3], str(result) == saved[2])
+        self.ui.lbl_job_exectime.setText(msg)
 
     @staticmethod
     def get_job_names():
@@ -192,10 +192,16 @@ class GridViewer(QMainWindow):
 
     @staticmethod
     def run_job(job_name):
+        QApplication.setOverrideCursor(Qt.WaitCursor)
         with open("jobs.yml", "r") as f:
             jobs = yaml.load(f)
-        callstrings = [(gridstr, "{}.{}".format(gridstr, funcstr)) for gridstr, calls in jobs[job_name].items() for funcstr in calls]
-        return [(gridstr, callstr, eval(callstr), GridViewer.ittime(callstr)) for gridstr, callstr in callstrings]
+        job = jobs[job_name]
+        callstrings = ((gridstr, "{}.{}".format(gridstr, funcstr)) for gridstr in job["grids"] for funcstr in job["calls"])
+
+        results = [(gridstr, callstr, eval(callstr), GridViewer.ittime(callstr)) for gridstr, callstr in callstrings]
+
+        QApplication.restoreOverrideCursor()
+        return results
 
     @staticmethod
     def ittime(callstr):
@@ -230,6 +236,8 @@ class GridViewer(QMainWindow):
 
     @staticmethod
     def save_result(gridstr, callstr, result, ittime):
+        if len(result) > 1000000:
+            raise IOError("too large to be stored")
         data = GridViewer.saved_results()
         data[callstr] = [gridstr, callstr, str(result), ittime]
         with open("results.yml", "w+") as f:

@@ -20,7 +20,7 @@
    <string>GridViewer</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,0">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="2">
     <property name="spacing">
      <number>3</number>
     </property>
@@ -253,28 +253,32 @@
        </widget>
       </item>
       <item>
-       <widget class="QGraphicsView" name="view">
-        <property name="font">
-         <font>
-          <stylestrategy>PreferAntialias</stylestrategy>
-         </font>
-        </property>
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAsNeeded</enum>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAsNeeded</enum>
-        </property>
-        <property name="transformationAnchor">
-         <enum>QGraphicsView::AnchorUnderMouse</enum>
-        </property>
-        <property name="resizeAnchor">
-         <enum>QGraphicsView::AnchorUnderMouse</enum>
-        </property>
-        <property name="viewportUpdateMode">
-         <enum>QGraphicsView::BoundingRectViewportUpdate</enum>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QGraphicsView" name="view">
+          <property name="font">
+           <font>
+            <stylestrategy>PreferAntialias</stylestrategy>
+           </font>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="transformationAnchor">
+           <enum>QGraphicsView::AnchorUnderMouse</enum>
+          </property>
+          <property name="resizeAnchor">
+           <enum>QGraphicsView::AnchorUnderMouse</enum>
+          </property>
+          <property name="viewportUpdateMode">
+           <enum>QGraphicsView::BoundingRectViewportUpdate</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -336,16 +340,6 @@
       </item>
      </layout>
     </item>
-    <item>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <property name="spacing">
-       <number>2</number>
-      </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-     </layout>
-    </item>
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -356,7 +350,6 @@
   </action>
  </widget>
  <tabstops>
-  <tabstop>view</tabstop>
   <tabstop>btn_new_grid</tabstop>
   <tabstop>cb_jobs</tabstop>
   <tabstop>btn_list_view</tabstop>
