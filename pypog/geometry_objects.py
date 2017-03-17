@@ -15,8 +15,8 @@ except ImportError:
 class BoundingRect(tuple):
     """ Bounding rectangle defined by a top-left (xmin, ymin) point
      and a bottom-right (xmax, ymax) point """
-    def __new__(self, xmin=-inf, ymin=-inf, xmax=inf, ymax=inf):
-        return tuple.__new__(self, (xmin, ymin, xmax, ymax))
+    def __new__(cls, xmin=-inf, ymin=-inf, xmax=inf, ymax=inf):
+        return tuple.__new__(cls, (xmin, ymin, xmax, ymax))
 
     @classmethod
     def from_(cls, *args):
@@ -194,6 +194,10 @@ class BaseGeometry:
         """ distance between 1 and 2 (run faster than a standard distance) """
         return (x1 - x2) ** 2 + (y1 - y2) ** 2
 
+    @staticmethod
+    def manhattan(xa, ya, xb, yb):
+        """returns the manhattan distance between the two cells"""
+        raise NotImplementedError("this method is abstract and should be reimplemented in subclasses")
 
 class SquareGeometry(BaseGeometry):
     """ Geometry on square grids """
@@ -371,6 +375,11 @@ class SquareGeometry(BaseGeometry):
             result.append((xr, yr))
         return result
 
+    @staticmethod
+    def manhattan(xa, ya, xb, yb):
+        """ reimplemented from BaseGeometry.manhattan """
+        return abs(xa - xb) + abs(ya - yb)
+
 class HexGeometry(BaseGeometry):
     """ Base class for hexagonal grids classes
     This class should be overridden """
@@ -403,15 +412,15 @@ class HexGeometry(BaseGeometry):
         return (rx, ry, rz)
 
     @staticmethod
-    def cubic_distance(*args):
-        """returns the manhattan distance between the two cells,
+    def manhattan(*args):
+        """ reimplemented from BaseGeometry.manhattan,
         using cubic coordinates"""
         try:
             xa, ya, za, xb, yb, zb = args
-            return max(abs(xa - xb), abs(ya - yb), abs(za - zb))
+            return abs(xa - xb) + abs(ya - yb) + abs(za - zb)
         except ValueError:
             xa, ya, xb, yb = args
-            HexGeometry.cubic_distance(*HexGeometry.to_cubic(xa, ya), *HexGeometry.to_cubic(xb, yb))
+            return HexGeometry.manhattan(*HexGeometry.to_cubic(xa, ya), *HexGeometry.to_cubic(xb, yb))
 
 class FHexGeometry(HexGeometry):
     """ Flat-hexagonal grid object """
@@ -549,8 +558,8 @@ class FHexGeometry(HexGeometry):
         result = []
 
         # convert to cubic coodinates (see 'cube_coords' lib)
-        xua, yua, _ = cls.cv_off_cube(xa, ya)
-        xuh, yuh, zuh = cls.cv_off_cube(xh, yh)
+        xua, yua, _ = cls.to_cubic(xa, ya)
+        xuh, yuh, zuh = cls.to_cubic(xh, yh)
 
         # direction vector
         dx_dir, dy_dir = xuh - xua, yuh - yua
@@ -567,8 +576,8 @@ class FHexGeometry(HexGeometry):
         xub, yub, zub = cls.cube_round(xub, yub, zub)
         xuc, yuc, zuc = cls.cube_round(xuc, yuc, zuc)
 
-        xb, yb = cls.cv_cube_off(xub, yub, zub)
-        xc, yc = cls.cv_cube_off(xuc, yuc, zuc)
+        xb, yb = cls.from_cubic(xub, yub, zub)
+        xc, yc = cls.from_cubic(xuc, yuc, zuc)
 
         # sides
         segments = [(xa, ya, xb, yb), (xb, yb, xc, yc), (xc, yc, xa, ya)]
@@ -610,8 +619,8 @@ class FHexGeometry(HexGeometry):
         k = 1 / (iAngle * sqrt(3))
 
         # use cubic coordinates
-        xua, yua, zua = cls.cv_off_cube(xa, ya)
-        xuh, yuh, zuh = cls.cv_off_cube(xh, yh)
+        xua, yua, zua = cls.to_cubic(xa, ya)
+        xuh, yuh, zuh = cls.to_cubic(xh, yh)
 
         length = max(abs(xuh - xua), abs(yuh - yua), abs(zuh - zua))
 
@@ -624,7 +633,7 @@ class FHexGeometry(HexGeometry):
 
         # this is approximative: height is update according to the manhattan distance to center
         for x, y in flat_triangle:
-            xu, yu, zu = cls.cv_off_cube(x, y)
+            xu, yu, zu = cls.to_cubic(x, y)
             distance = int(max(abs(xu - xua), abs(yu - yua), abs(zu - zua)))
             try:
                 z_list = vertical_line_dict[ distance ]
@@ -643,15 +652,15 @@ class FHexGeometry(HexGeometry):
         if coordinates == [center] or rotations % 6 == 0:
             return coordinates
         x0, y0 = center
-        xu0, yu0, zu0 = cls.cv_off_cube(x0, y0)
+        xu0, yu0, zu0 = cls.to_cubic(x0, y0)
         result = []
 
         for x, y in coordinates:
-            xu, yu, zu = cls.cv_off_cube(x, y)
+            xu, yu, zu = cls.to_cubic(x, y)
             dxu, dyu, dzu = xu - xu0, yu - yu0, zu - zu0
             for _ in range(rotations):
                 dxu, dyu, dzu = -dzu, -dxu, -dyu
             xru, yru, zru = dxu + xu0, dyu + yu0, dzu + zu0
-            xr, yr = cls.cv_cube_off(xru, yru, zru)
+            xr, yr = cls.from_cubic(xru, yru, zru)
             result.append((xr, yr))
         return result

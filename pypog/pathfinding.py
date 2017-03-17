@@ -1,133 +1,93 @@
 '''
-   Implement the A* algorithm
+   Implements the A* algorithm
 
-   Use the path function like that:
+   usage:
+       grid = SquareGrid(30, 30)
+       p = path(grid, (1, 6), (3, 9))
+       >> [(2, 7), (3, 8), (3, 9), (3, 9)]
 
-       path(my_grid, (xs, ys), (xt, yt), my_moving_cost_function)
-       >> [(xs, ys), (x1, y1), (x2, y2), ...(xt, yt)]
-
-       where:
-        - my_grid is a Grid, HexGrid, or SquareGrid object
-        - (xs, ys) is the starting cell
-        - (xt, yt) is the targeted cell
-        - my_moving_cost_function is a pointer to your custom function. This function should be like:
-
-        def my_moving_cost_function((x0, y0), (x1, y1)):
-            ...
-            return cost
-
-        this function should return an INTEGER which represent the cost of a move from (x0, y0) to (x1, y1),
-        where (x0, y0) and (x1, y1) are adjacent cells
-
-        If cost is negative, move is impossible.
-        If move is strictly positive, it represents the difficulty to move from 0 to 1:
-        the returned path will be the easiest from (xs, ys) to (xt, yt)
-
-    3D paths:
-        The path method takes account of the differents altitudes of the cells, but it is not designed to
-        work for a flying mover.
-        More clearly: the path will be on the ground: walking, climbing, but no flying for instance.
+    * 'grid': Grid object
+    * 'origin' starting (x, y) coordinates
+    * 'target' targeted (x, y) coordinates
 
     ** By Cro-Ki l@b, 2017 **
 '''
-from pypog.geometry_objects import HexGeometry
-from pypog.grid_objects import BaseGrid
+import heapq
 
 class NoPathFound(Exception):
     pass
 
-class Node():
-    target = None
-    def __init__(self, x, y, parent=None):
-        self._x = x
-        self._y = y
-        self.parent = parent
-        self.gcost = 0
-        self.hcost = 0
+class Node(tuple):
+    def __new__(self, x, y, parent=None):
+        n = tuple.__new__(self, (x, y))
+        n.parent = parent
+        n.cost = 0
+        return n
 
-    def compute(self, moving_cost):
-        # the manhattan distance to the final target
-        self.hcost = HexGeometry.cubic_distance(self._x, self._y, *self.target)
+def path(grid, origin, target, include_origin):
 
-        # the cumulated moving cost of the path that lead here
-        self.gcost = self.parent.g_cost + self.moving_cost
+    # list of checked nodes
+    nodes = []
 
-    @property
-    def cost(self):
-        return self.g_cost + self.h_cost
+    # starting node, cost is 0 and parent is None
+    origin = Node(*origin)
 
-def path(grid, from_x, from_y, to_x, to_y):
-    """return the shorter path from origin to target on the Grid object
-    the path is estimated following:
-    - geometry of the grid
-    - altitudes of the cells
-    - cost of the move returned by the 'moving_cost_function'
+    # append 'origin' to nodes, with priority 0
+    heapq.heappush(nodes, (0, origin))
 
-    origin and target should be Cell objects
-    """
-    if not isinstance(grid, BaseGrid):
-        raise TypeError("grid has to be an instance of BaseGrid (given: {})".format(type(grid).__name__))
+    # while there are unchecked nodes , process
+    while nodes:
 
-    nodes = {}
+        # pop the node with the lowest priority (cost) from the list,
+        current = heapq.heappop(nodes)[1]
 
-    # pass target to the Node class:
-    Node.target = (to_x, to_y)
+        # early exit
+        if current == target:
+            break
 
-    # origin node
-    nO = Node(from_x, from_y)
+        for x, y in grid.neighbors(*current):
 
-    # current position
-    pos = nO
+            node = Node(x, y, current)
 
-    while (pos.x, pos.y) != (to_x, to_y):
-
-        # lists the neighbors of the current position
-        neighbours = grid.neighbors(pos.x, pos.y)
-
-
-
-        # removes the coordinates already checked
-        neighbours = set(neighbours) - set(nodes.keys())
-
-        for x, y in neighbours:
-
-            # use the grid's movingcost() function to get the moving cost from position to (x, y)
-            cost = grid._movingcost(pos.x, pos.y, x, y)
-
-            # cost is negative, can not go there
-            if cost < 0:
+            # get the moving cost to this node
+            movingcost = grid.movingcost(*current, *node)
+            if movingcost < 0:
                 continue
 
-            # instanciate the new node with 'pos' as parent
-            node = Node(x, y, pos)
-            node.compute(cost)
+            # cost of the node is the accumulated cost from origin
+            node.cost = current.cost + movingcost
 
             # check if there is already a node with a lower cost
             try:
-                if nodes[(x, y)].cost <= node.cost:
+                index = nodes.index(node)
+                if nodes[index].cost > node.cost:
+                    del nodes[index]
+                else:
                     continue
-            except KeyError:
+            except ValueError:
                 pass
 
-            # memorize the node
-            nodes[(x, y)] = node
+            # compute the cost of the node
+            priority = node.cost + grid.geometry.manhattan(*node, *target)
 
-        # no new nodes were found
-        if not nodes:
-            raise NoPathFound()
-
-        # retrieves the lowest cost
-        best = min(nodes.values(), key=lambda x: x.cost)
-
-        del nodes[best.coord]
-        pos = best
-
+            # append to the checked nodes list
+            heapq.heappush(nodes, (priority, node))
     else:
+        # all the reachable nodes hve been checked, no way found to the target
+        raise NoPathFound("no path were found to the targetted location {}".format(target))
 
-        # build the result
-        path = []
-        while (pos.x, pos.y) != (from_x, from_y):
-            path.insert(0, (pos.x, pos.y, pos.k_dep))
-            pos = pos.parent
+    # build the result
+    result = [target]
+    while current != origin:
+        result.append(tuple(current))
+        current = current.parent
+    result.reverse()
 
-    return path
+    return result
+
+if __name__ == '__main__':
+    from pypog.grid_objects import SquareGrid
+    grid = SquareGrid(30, 30)
+    p = path(grid, (1, 6), (3, 9))
+    print(p)
+

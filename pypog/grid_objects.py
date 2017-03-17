@@ -5,7 +5,6 @@
 '''
 from pypog.geometry_objects import BaseGeometry, FHexGeometry, SquareGeometry, \
     BoundingRect, HexGeometry
-from pypog.painter_objects import LinePainter
 
 
 class BaseGrid(object):
@@ -126,7 +125,7 @@ class BaseGrid(object):
         return True
 
     # pathfinding
-    def _movingcost(self, from_x, from_y, to_x, to_y):
+    def movingcost(self, from_x, from_y, to_x, to_y):
         return 1
 
 class SquareGrid(BaseGrid):
