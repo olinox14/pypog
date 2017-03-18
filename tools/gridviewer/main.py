@@ -16,11 +16,11 @@ if __name__ == '__main__':
 
     iface.show()
 
-    SYS_EXCEPT_HOOK = sys.excepthook
+    SYS_HOOK = sys.excepthook
     def error_handler(typ, value, trace):
         QApplication.restoreOverrideCursor()
         QMessageBox.critical(iface, typ.__name__, "{}".format(value))
-        SYS_EXCEPT_HOOK(typ, value, trace)
+        SYS_HOOK(typ, value, trace)
     sys.excepthook = error_handler
 
     r = app.exec_()

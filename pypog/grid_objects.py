@@ -5,6 +5,7 @@
 '''
 from pypog.geometry_objects import BaseGeometry, FHexGeometry, SquareGeometry, \
     BoundingRect, HexGeometry
+from pypog.pathfinding import Pathfinder
 
 
 class BaseGrid(object):
@@ -127,6 +128,9 @@ class BaseGrid(object):
     # pathfinding
     def movingcost(self, from_x, from_y, to_x, to_y):
         return 1
+
+    def path(self, from_x, from_y, to_x, to_y):
+        return Pathfinder.a_star(self, (from_x, from_y), (to_x, to_y))
 
 class SquareGrid(BaseGrid):
     """ Square grid object """
