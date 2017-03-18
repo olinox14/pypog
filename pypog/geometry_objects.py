@@ -214,7 +214,7 @@ class SquareGeometry(BaseGeometry):
                 ]
 
     @classmethod
-    def set_no_diagonals(cls, active):
+    def set_no_diags(cls, active):
         """ if nodiags is set to True, the neighbors method
         won't return the diagonals cells """
         cls._nodiags = active
@@ -239,30 +239,34 @@ class SquareGeometry(BaseGeometry):
         Implementation of bresenham's algorithm
         """
         cls.assertCoordinates((x1, y1), (x2, y2))
-
-        result = []
-
         if (x1, y1) == (x2, y2):
             return [(x1, y1)]
 
-        # DIAGONAL SYMETRY
-        V = (abs(y2 - y1) > abs(x2 - x1))
-        if V: y1, x1, y2, x2 = x1, y1, x2, y2
+        result = []
 
-        # VERTICAL SYMETRY
+        # diagonal symmetry
+        vertically_oriented = (abs(y2 - y1) > abs(x2 - x1))
+        if vertically_oriented:
+            y1, x1, y2, x2 = x1, y1, x2, y2
+
+        # vertical symmetry
         reversed_sym = (x1 > x2)
         if reversed_sym:
             x2, y2, x1, y1 = x1, y1, x2, y2
 
-        DX = x2 - x1 ; DY = y2 - y1
+        # Compute
+        dx = x2 - x1
+        dy = y2 - y1
+        alpha = (abs(dy) / dx)
         offset = 0.0
-        step = 1 if DY > 0 else -1
-        alpha = (abs(DY) / DX)
+        step = 1 if dy > 0 else -1
 
         y = y1
         for x in range(x1, x2 + 1):
-            coord = (y, x) if V else (x, y)
-            result.append(coord)
+            if vertically_oriented:
+                result.append((y, x))
+            else:
+                result.append((x, y))
 
             offset += alpha
             if offset > 0.5:
