@@ -238,29 +238,31 @@ class SquareGeometry(BaseGeometry):
         """ reimplemented from BaseGeometry.line
         Implementation of bresenham's algorithm
         """
+        # check the arguments
         cls.assertCoordinates((x1, y1), (x2, y2))
+
+        # special case
         if (x1, y1) == (x2, y2):
             return [(x1, y1)]
-
-        result = []
 
         # diagonal symmetry
         vertically_oriented = (abs(y2 - y1) > abs(x2 - x1))
         if vertically_oriented:
             y1, x1, y2, x2 = x1, y1, x2, y2
 
-        # vertical symmetry
+        # horizontal symmetry
         reversed_sym = (x1 > x2)
         if reversed_sym:
             x2, y2, x1, y1 = x1, y1, x2, y2
 
-        # Compute
-        dx = x2 - x1
-        dy = y2 - y1
+        # angle
+        dx, dy = x2 - x1, y2 - y1
         alpha = (abs(dy) / dx)
+
         offset = 0.0
         step = 1 if dy > 0 else -1
 
+        result = []
         y = y1
         for x in range(x1, x2 + 1):
             if vertically_oriented:
@@ -459,20 +461,23 @@ class FHexGeometry(HexGeometry):
         if (x1, y1) == (x2, y2):
             return [(x1, y1)]
 
+        # vertical symmetry
         reversed_sym = (x1 > x2)
         if reversed_sym:
-            x1, x2 = x2, x1
-            y1, y2 = y2, y1
+            x2, y2, x1, y1 = x1, y1, x2, y2
+
+
+        # The unit that will be used is half the width of an hexagon: u = 0.5773
+        # In that system, half-height of an hexagon is 0.8860u, or sqrt(3)/2 * u
 
         if abs(x2 - x1) < (2 * abs((y2 - y1)) + abs(x2 % 2) - abs(x1 % 1)):
             # vertical quadrants
 
-            # unit is half the width: u = 0.5773
-            # half-height is then 0.8860u, or sqrt(3)/2
             direction = 1 if y2 > y1 else -1
 
             dx = 1.5 * (x2 - x1)
             dy = direction * (y2 - y1)
+
             if (x1 + x2) % 2 == 1:
                 if x1 % 2 == 0:
                     dy += direction * 0.5
@@ -480,7 +485,7 @@ class FHexGeometry(HexGeometry):
                     dy -= direction * 0.5
 
             k = dx / (dy * sqrt(3))
-            pas = 0.5 * sqrt(3)
+            pas = sqrt(3) / 2
 
             result = []
             offset = 0.0
@@ -510,7 +515,9 @@ class FHexGeometry(HexGeometry):
 
         else:
             # horizontal quadrants
-            dx = x2 - x1 ; dy = y2 - y1
+            dx = x2 - x1
+            dy = y2 - y1
+
             if (x1 + x2) % 2 == 1:
                 dy += 0.5 if x1 % 2 == 0 else -0.5
 

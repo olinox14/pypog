@@ -13,7 +13,7 @@ from pypog.geometry_objects import FHexGeometry, SquareGeometry, BaseGeometry, \
 class Test(unittest.TestCase):
 
     def setUp(self):
-        SquareGeometry.set_no_diagonals(False)
+        SquareGeometry.set_no_diags(False)
 
     def test_bounding_rect(self):
         br = BoundingRect(0, 1, 10, 11)
@@ -63,7 +63,7 @@ class Test(unittest.TestCase):
         self.assertCountEqual(FHexGeometry.neighbors(4, 4), [(4, 3), (5, 3), (5, 4), (4, 5), (3, 4), (3, 3)])
 
         self.assertCountEqual(SquareGeometry.neighbors(3, 3), [(2, 3), (2, 2), (3, 2), (4, 2), (4, 3), (4, 4), (3, 4), (2, 4)])
-        SquareGeometry.set_no_diagonals(True)
+        SquareGeometry.set_no_diags(True)
         self.assertCountEqual(SquareGeometry.neighbors(3, 3), [(2, 3), (3, 2), (4, 3), (3, 4)])
 
     def test_zone(self):
