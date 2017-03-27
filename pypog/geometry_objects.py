@@ -3,14 +3,7 @@
 
     ** By Cro-Ki l@b, 2017 **
 '''
-from math import sqrt
-import math
-
-try:
-    inf = math.inf
-except ImportError:
-    # backward compatibility for python < 3.5
-    inf = float("inf")
+from math import sqrt, inf
 
 class BoundingRect(tuple):
     """ Bounding rectangle defined by a top-left (xmin, ymin) point
